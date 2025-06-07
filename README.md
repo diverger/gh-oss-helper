@@ -4,7 +4,7 @@
 [![GitHub](https://img.shields.io/github/license/diverger/gh-oss-helper)](https://github.com/diverger/gh-oss-helper/blob/main/LICENSE)
 [![GitHub release](https://img.shields.io/github/release/diverger/gh-oss-helper)](https://github.com/diverger/gh-oss-helper/releases)
 [![Build and Package](https://github.com/diverger/gh-oss-helper/actions/workflows/build-and-package.yml/badge.svg)](https://github.com/diverger/gh-oss-helper/actions)
-[![Unit Tests](https://github.com/diverger/gh-oss-helper/actions/workflows/test.yml/badge.svg)](https://github.com/diverger/gh-oss-helper/actions)
+[![Unit Tests](https://github.com/diverger/gh-oss-helper/actions/workflows/unit-test.yml/badge.svg)](https://github.com/diverger/gh-oss-helper/actions)
 
 A TypeScript GitHub Action for uploading assets to Alibaba Cloud OSS (Object Storage Service) with advanced retry logic, comprehensive error handling, and extensive customization options.
 
@@ -56,7 +56,7 @@ jobs:
 | `assets` | ✅ | - | Upload rules (see format below) |
 | `region` | ❌ | - | OSS region (e.g., `oss-cn-hangzhou`) |
 | `endpoint` | ❌ | - | Custom OSS endpoint URL |
-| `timeout` | ❌ | `120` | Upload timeout in seconds |
+| `timeout` | ❌ | `600` | Upload timeout in seconds |
 | `max-retries` | ❌ | `3` | Maximum retry attempts for failed uploads |
 | `continue-on-error` | ❌ | `false` | Continue even if some uploads fail |
 | `enable-gzip` | ❌ | `false` | Enable gzip compression |

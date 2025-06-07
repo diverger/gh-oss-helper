@@ -22,7 +22,7 @@ describe('Type Definitions', () => {
         keySecret: 'test-secret',
         bucket: 'test-bucket',
         assets: 'src/**/*:dist/',
-        timeout: 120000,
+        timeout: 600000,
         continueOnError: false,
         headers: {},
         maxRetries: 3,
@@ -36,7 +36,7 @@ describe('Type Definitions', () => {
       expect(inputs.keySecret).toBe('test-secret');
       expect(inputs.bucket).toBe('test-bucket');
       expect(inputs.assets).toBe('src/**/*:dist/');
-      expect(inputs.timeout).toBe(120000);
+      expect(inputs.timeout).toBe(600000);
       expect(inputs.continueOnError).toBe(false);
       expect(inputs.headers).toEqual({});
       expect(inputs.maxRetries).toBe(3);
@@ -53,14 +53,14 @@ describe('Type Definitions', () => {
         accessKeySecret: 'test-secret',
         bucket: 'test-bucket',
         region: 'oss-cn-hangzhou',
-        timeout: 120000
+        timeout: 600000
       };
 
       expect(config.accessKeyId).toBe('test-key');
       expect(config.accessKeySecret).toBe('test-secret');
       expect(config.bucket).toBe('test-bucket');
       expect(config.region).toBe('oss-cn-hangzhou');
-      expect(config.timeout).toBe(120000);
+      expect(config.timeout).toBe(600000);
     });
 
     it('should allow optional endpoint', () => {
@@ -69,7 +69,7 @@ describe('Type Definitions', () => {
         accessKeySecret: 'test-secret',
         bucket: 'test-bucket',
         region: 'oss-cn-hangzhou',
-        timeout: 120000,
+        timeout: 600000,
         endpoint: 'https://custom-endpoint.com'
       };
 

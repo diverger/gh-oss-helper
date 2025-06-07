@@ -104,7 +104,7 @@ function createOSSConfig(inputs: ActionInputs): OSSConfig {
     accessKeyId: inputs.accessKey,
     accessKeySecret: inputs.secretKey,
     bucket: inputs.bucket,
-    timeout: parseInt(inputs.timeout || '120', 10) * 1000 // Convert to milliseconds
+    timeout: parseInt(inputs.timeout || '600', 10) * 1000 // Convert to milliseconds
   };
 
   if (inputs.region) {
@@ -135,7 +135,7 @@ function createRetryConfig(inputs: ActionInputs): RetryConfig {
  */
 function createUploadOptions(inputs: ActionInputs): UploadOptions {
   const options: UploadOptions = {
-    timeout: parseInt(inputs.timeout || '120', 10) * 1000
+    timeout: parseInt(inputs.timeout || '600', 10) * 1000
   };
 
   // Parse custom headers

@@ -25,8 +25,8 @@ inputs:
     description: 'Upload rules in format "src:dst", one per line. Use "/" suffix for directories'
   timeout:
     required: false
-    default: '120'
-    description: 'Upload timeout in seconds (default: 120)'
+    default: '600'
+    description: 'Upload timeout in seconds (default: 600)'
   max-retries:
     required: false
     default: '3'

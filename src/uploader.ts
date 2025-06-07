@@ -181,7 +181,7 @@ export class OSSUploader {
     options: UploadOptions
   ): Promise<UploadResult> {
     const uploadOptions: Record<string, unknown> = {
-      timeout: options.timeout || 120000,
+      timeout: options.timeout || 600000,
       ...options
     };
 
