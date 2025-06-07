@@ -1,6 +1,5 @@
 node_modules/
 .DS_Store
-package-lock.json
 
 # Build outputs - we commit dist/ but not lib/
 lib/
