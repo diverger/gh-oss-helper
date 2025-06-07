@@ -30,16 +30,16 @@
     "ci-cd",
     "deployment"
   ],
-  "author": "Your Name <your.email@example.com>",
+  "author": "diverger <divergerl@live.cn>",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yourusername/gh-oss-helper.git"
+    "url": "git+https://github.com/diverger/gh-oss-helper.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/gh-oss-helper/issues"
+    "url": "https://github.com/diverger/gh-oss-helper/issues"
   },
-  "homepage": "https://github.com/yourusername/gh-oss-helper#readme",
+  "homepage": "https://github.com/diverger/gh-oss-helper#readme",
   "dependencies": {
     "@actions/core": "^1.11.1",
     "@actions/github": "^6.0.0",

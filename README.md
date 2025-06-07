@@ -1,9 +1,10 @@
 
 # GH OSS Helper
 
-[![GitHub](https://img.shields.io/github/license/yourusername/gh-oss-helper)](https://github.com/yourusername/gh-oss-helper/blob/main/LICENSE)
-[![GitHub release](https://img.shields.io/github/release/yourusername/gh-oss-helper)](https://github.com/yourusername/gh-oss-helper/releases)
-[![Tests](https://github.com/yourusername/gh-oss-helper/workflows/test/badge.svg)](https://github.com/yourusername/gh-oss-helper/actions)
+[![GitHub](https://img.shields.io/github/license/diverger/gh-oss-helper)](https://github.com/diverger/gh-oss-helper/blob/main/LICENSE)
+[![GitHub release](https://img.shields.io/github/release/diverger/gh-oss-helper)](https://github.com/diverger/gh-oss-helper/releases)
+[![Tests](https://github.com/diverger/gh-oss-helper/workflows/Build%20and%20Package/badge.svg)](https://github.com/diverger/gh-oss-helper/actions)
+[![Test Action](https://github.com/diverger/gh-oss-helper/workflows/Test%20Action/badge.svg)](https://github.com/diverger/gh-oss-helper/actions)
 
 A modern TypeScript GitHub Action for uploading assets to Alibaba Cloud OSS (Object Storage Service) with advanced retry logic, comprehensive error handling, and extensive customization options.
 
@@ -34,7 +35,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Upload to OSS
-        uses: yourusername/gh-oss-helper@v1
+        uses: diverger/gh-oss-helper@v1
         with:
           access-key: ${{ secrets.OSS_ACCESS_KEY }}
           secret-key: ${{ secrets.OSS_SECRET_KEY }}
@@ -109,7 +110,7 @@ assets: |
 
 ```yaml
 - name: Upload with custom headers
-  uses: yourusername/gh-oss-helper@v1
+  uses: diverger/gh-oss-helper@v1
   with:
     # ... other inputs
     headers: |
@@ -123,7 +124,7 @@ assets: |
 
 ```yaml
 - name: Upload with custom retry logic
-  uses: yourusername/gh-oss-helper@v1
+  uses: diverger/gh-oss-helper@v1
   with:
     # ... other inputs
     max-retries: 5
@@ -135,7 +136,7 @@ assets: |
 
 ```yaml
 - name: Upload with compression
-  uses: yourusername/gh-oss-helper@v1
+  uses: diverger/gh-oss-helper@v1
   with:
     # ... other inputs
     enable-gzip: true
@@ -170,7 +171,7 @@ jobs:
         run: npm run build
 
       - name: Upload to OSS
-        uses: yourusername/gh-oss-helper@v1
+        uses: diverger/gh-oss-helper@v1
         with:
           access-key: ${{ secrets.OSS_ACCESS_KEY }}
           secret-key: ${{ secrets.OSS_SECRET_KEY }}
@@ -202,7 +203,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Upload documentation
-        uses: yourusername/gh-oss-helper@v1
+        uses: diverger/gh-oss-helper@v1
         with:
           access-key: ${{ secrets.OSS_ACCESS_KEY }}
           secret-key: ${{ secrets.OSS_SECRET_KEY }}
@@ -227,7 +228,7 @@ jobs:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/gh-oss-helper.git
+git clone https://github.com/diverger/gh-oss-helper.git
 cd gh-oss-helper
 
 # Install dependencies
@@ -323,6 +324,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- 📖 [Documentation](https://github.com/yourusername/gh-oss-helper/wiki)
-- 🐛 [Issues](https://github.com/yourusername/gh-oss-helper/issues)
-- 💬 [Discussions](https://github.com/yourusername/gh-oss-helper/discussions)
+- 📖 [Documentation](https://github.com/diverger/gh-oss-helper/wiki)
+- 🐛 [Issues](https://github.com/diverger/gh-oss-helper/issues)
+- 💬 [Discussions](https://github.com/diverger/gh-oss-helper/discussions)
