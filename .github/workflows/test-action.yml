@@ -17,7 +17,7 @@ on:
       region:
         description: 'OSS Region (e.g., oss-cn-beijing)'
         required: false
-        default: 'oss-cn-beijing'
+        default: ''
       bucket:
         description: 'OSS Bucket Name'
         required: false

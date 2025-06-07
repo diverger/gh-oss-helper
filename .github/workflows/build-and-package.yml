@@ -3,8 +3,27 @@ name: Build and Package
 on:
   push:
     branches: [ main, master, develop ]
+    paths:
+      - 'src/**'
+      - 'package*.json'
+      - 'tsconfig.json'
+      - 'vitest.config.mjs'
+      - 'eslint.config.mjs'
+      - 'action.yml'
+      - '!.github/workflows/**'
+      - '!**/*.md'
   pull_request:
     branches: [ main, master ]
+    paths:
+      - 'src/**'
+      - 'package*.json'
+      - 'tsconfig.json'
+      - 'vitest.config.mjs'
+      - 'eslint.config.mjs'
+      - 'action.yml'
+      - 'build.sh'
+      - '!.github/workflows/**'
+      - '!**/*.md'
   workflow_dispatch:
 
 jobs:
