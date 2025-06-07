@@ -3,8 +3,8 @@
 
 [![GitHub](https://img.shields.io/github/license/diverger/gh-oss-helper)](https://github.com/diverger/gh-oss-helper/blob/main/LICENSE)
 [![GitHub release](https://img.shields.io/github/release/diverger/gh-oss-helper)](https://github.com/diverger/gh-oss-helper/releases)
-[![Tests](https://github.com/diverger/gh-oss-helper/workflows/Build%20and%20Package/badge.svg)](https://github.com/diverger/gh-oss-helper/actions)
-[![Test Action](https://github.com/diverger/gh-oss-helper/workflows/Test%20Action/badge.svg)](https://github.com/diverger/gh-oss-helper/actions)
+[![Build and Package](https://github.com/diverger/gh-oss-helper/actions/workflows/build-and-package.yml/badge.svg)](https://github.com/diverger/gh-oss-helper/actions)
+[![Unit Tests](https://github.com/diverger/gh-oss-helper/actions/workflows/test.yml/badge.svg)](https://github.com/diverger/gh-oss-helper/actions)
 
 A modern TypeScript GitHub Action for uploading assets to Alibaba Cloud OSS (Object Storage Service) with advanced retry logic, comprehensive error handling, and extensive customization options.
 
