@@ -15,13 +15,13 @@ on:
           - 'dry-run'
         default: 'dry-run'
       region:
-        description: 'OSS Region (e.g., oss-cn-hangzhou)'
+        description: 'OSS Region (e.g., oss-cn-beijing)'
         required: false
-        default: 'oss-cn-hangzhou'
+        default: 'oss-cn-beijing'
       bucket:
         description: 'OSS Bucket Name'
         required: false
-        default: 'test-bucket'
+        default: ''
       custom_assets:
         description: 'Custom assets (optional, for advanced testing)'
         required: false
@@ -30,6 +30,12 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      # Set fallback values using environment variables
+      OSS_REGION: ${{ inputs.region != '' && inputs.region || secrets.OSS_REGION || 'oss-cn-beijing' }}
+      OSS_BUCKET: ${{ inputs.bucket != '' && inputs.bucket || secrets.OSS_BUCKET || 'test-bucket' }}
+      OSS_ACCESS_KEY: ${{ secrets.OSS_ACCESS_KEY || 'test-key' }}
+      OSS_SECRET_KEY: ${{ secrets.OSS_SECRET_KEY || 'test-secret' }}
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -64,10 +70,10 @@ jobs:
       if: inputs.test_type == 'dry-run'
       uses: ./
       with:
-        region: ${{ inputs.region }}
+        region: ${{ env.OSS_REGION }}
         key-id: 'test-key-id'
         key-secret: 'test-key-secret'
-        bucket: ${{ inputs.bucket }}
+        bucket: ${{ env.OSS_BUCKET }}
         assets: |
           test-files/README.md:docs/readme.md
         timeout: 60
@@ -80,10 +86,10 @@ jobs:
       if: inputs.test_type == 'basic-upload'
       uses: ./
       with:
-        region: ${{ inputs.region }}
-        key-id: ${{ secrets.OSS_KEY_ID || 'test-key' }}
-        key-secret: ${{ secrets.OSS_KEY_SECRET || 'test-secret' }}
-        bucket: ${{ inputs.bucket }}
+        region: ${{ env.OSS_REGION }}
+        key-id: ${{ env.OSS_ACCESS_KEY }}
+        key-secret: ${{ env.OSS_SECRET_KEY }}
+        bucket: ${{ env.OSS_BUCKET }}
         assets: |
           test-files/README.md:docs/readme.md
         timeout: 120
@@ -93,10 +99,10 @@ jobs:
       if: inputs.test_type == 'multiple-files'
       uses: ./
       with:
-        region: ${{ inputs.region }}
-        key-id: ${{ secrets.OSS_KEY_ID || 'test-key' }}
-        key-secret: ${{ secrets.OSS_KEY_SECRET || 'test-secret' }}
-        bucket: ${{ inputs.bucket }}
+        region: ${{ env.OSS_REGION }}
+        key-id: ${{ env.OSS_ACCESS_KEY }}
+        key-secret: ${{ env.OSS_SECRET_KEY }}
+        bucket: ${{ env.OSS_BUCKET }}
         assets: |
           test-files/README.md:docs/readme.md
           test-files/docs/guide.md:documentation/guide.md
@@ -108,10 +114,10 @@ jobs:
       if: inputs.test_type == 'directory-upload'
       uses: ./
       with:
-        region: ${{ inputs.region }}
-        key-id: ${{ secrets.OSS_KEY_ID || 'test-key' }}
-        key-secret: ${{ secrets.OSS_KEY_SECRET || 'test-secret' }}
-        bucket: ${{ inputs.bucket }}
+        region: ${{ env.OSS_REGION }}
+        key-id: ${{ env.OSS_ACCESS_KEY }}
+        key-secret: ${{ env.OSS_SECRET_KEY }}
+        bucket: ${{ env.OSS_BUCKET }}
         assets: |
           test-files/:website/
         timeout: 180
@@ -121,10 +127,10 @@ jobs:
       if: inputs.test_type == 'advanced-options'
       uses: ./
       with:
-        region: ${{ inputs.region }}
-        key-id: ${{ secrets.OSS_KEY_ID || 'test-key' }}
-        key-secret: ${{ secrets.OSS_KEY_SECRET || 'test-secret' }}
-        bucket: ${{ inputs.bucket }}
+        region: ${{ env.OSS_REGION }}
+        key-id: ${{ env.OSS_ACCESS_KEY }}
+        key-secret: ${{ env.OSS_SECRET_KEY }}
+        bucket: ${{ env.OSS_BUCKET }}
         assets: |
           test-files/README.md:docs/readme.md
           test-files/large-file.bin:files/large.bin
@@ -139,10 +145,10 @@ jobs:
       if: inputs.custom_assets != ''
       uses: ./
       with:
-        region: ${{ inputs.region }}
-        key-id: ${{ secrets.OSS_KEY_ID || 'test-key' }}
-        key-secret: ${{ secrets.OSS_KEY_SECRET || 'test-secret' }}
-        bucket: ${{ inputs.bucket }}
+        region: ${{ env.OSS_REGION }}
+        key-id: ${{ env.OSS_ACCESS_KEY }}
+        key-secret: ${{ env.OSS_SECRET_KEY }}
+        bucket: ${{ env.OSS_BUCKET }}
         assets: ${{ inputs.custom_assets }}
         timeout: 180
         continue-on-error: true
@@ -152,8 +158,8 @@ jobs:
       run: |
         echo "🧪 Test completed!"
         echo "📊 Test type: ${{ inputs.test_type }}"
-        echo "🌏 Region: ${{ inputs.region }}"
-        echo "🪣 Bucket: ${{ inputs.bucket }}"
+        echo "🌏 Region: ${{ env.OSS_REGION }}"
+        echo "🪣 Bucket: ${{ env.OSS_BUCKET }}"
 
         if [ -n "${{ inputs.custom_assets }}" ]; then
           echo "📋 Custom assets: ${{ inputs.custom_assets }}"
@@ -161,8 +167,7 @@ jobs:
 
         echo ""
         echo "💡 To test with real credentials:"
-        echo "1. Add OSS_KEY_ID and OSS_KEY_SECRET to repository secrets"
-        echo "2. Use a real bucket name"
-        echo "3. Re-run this workflow"
+        echo "1. Add OSS_ACCESS_KEY, OSS_SECRET_KEY, OSS_REGION, and OSS_BUCKET to repository secrets"
+        echo "2. Re-run this workflow"
         echo ""
         echo "🔍 Check the action logs above for detailed results"
