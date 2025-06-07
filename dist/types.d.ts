@@ -14,12 +14,13 @@ export interface UploadRule {
     isDirectory: boolean;
 }
 export interface UploadResult {
-    url: string;
-    name: string;
+    success: boolean;
+    filePath: string;
+    objectKey: string;
     size: number;
     etag?: string;
-    versionId?: string;
-    duration: number;
+    url?: string;
+    error?: string;
 }
 export interface UploadStats {
     totalFiles: number;
@@ -59,17 +60,29 @@ export interface UploadOptions {
     meta?: Record<string, string>;
 }
 export declare class OSSActionError extends Error {
-    readonly code?: string | undefined;
-    readonly statusCode?: number | undefined;
-    readonly filePath?: string | undefined;
-    constructor(message: string, code?: string | undefined, statusCode?: number | undefined, filePath?: string | undefined);
+    readonly code?: string;
+    readonly statusCode?: number;
+    readonly filePath?: string;
+    constructor(message: string, code?: string, statusCode?: number, filePath?: string);
 }
 export declare class ValidationError extends OSSActionError {
-    constructor(message: string, field?: string);
+    constructor(message: string);
 }
 export declare class NetworkError extends OSSActionError {
     constructor(message: string, statusCode?: number);
 }
 export declare class FileNotFoundError extends OSSActionError {
     constructor(filePath: string);
+}
+export interface OSSResponse {
+    name: string;
+    url: string;
+    res: {
+        status: number;
+        headers: Record<string, string>;
+        size: number;
+        aborted: boolean;
+        rt: number;
+        keepAliveSocket: boolean;
+    };
 }

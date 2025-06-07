@@ -70193,21 +70193,20 @@ class OSSActionError extends Error {
     filePath;
     constructor(message, code, statusCode, filePath) {
         super(message);
-        this.code = code;
-        this.statusCode = statusCode;
-        this.filePath = filePath;
         this.name = 'OSSActionError';
+        if (code !== undefined)
+            this.code = code;
+        if (statusCode !== undefined)
+            this.statusCode = statusCode;
+        if (filePath !== undefined)
+            this.filePath = filePath;
     }
 }
 exports.OSSActionError = OSSActionError;
 class ValidationError extends OSSActionError {
-    constructor(message, field) {
+    constructor(message) {
         super(`Validation Error: ${message}`, 'VALIDATION_ERROR');
         this.name = 'ValidationError';
-        // Field parameter is available for future error context
-        if (field) {
-            // Field can be used for detailed error reporting
-        }
     }
 }
 exports.ValidationError = ValidationError;
@@ -70405,22 +70404,21 @@ class OSSUploader {
         // Handle gzip compression
         if (options.gzip) {
             uploadOptions.headers = {
-                ...uploadOptions.headers,
+                ...(uploadOptions.headers || {}),
                 'Content-Encoding': 'gzip'
             };
         }
-        const startTime = Date.now();
         const response = await this.oss.put(remotePath, (0, path_1.resolve)(localPath), uploadOptions);
-        const duration = Date.now() - startTime;
         // Handle OSS response structure safely
         const ossResponse = response;
+        const fileStats = await (0, utils_1.getFileStats)(localPath);
         return {
-            url: ossResponse.url,
-            name: ossResponse.name,
-            size: (await (0, utils_1.getFileStats)(localPath)).size,
-            etag: ossResponse.res?.headers?.etag || ossResponse.etag,
-            versionId: ossResponse.res?.headers?.['x-oss-version-id'] || ossResponse.versionId,
-            duration
+            success: true,
+            filePath: localPath,
+            objectKey: remotePath,
+            size: fileStats.size,
+            etag: ossResponse.res?.headers?.etag,
+            url: ossResponse.url
         };
     }
     /**
@@ -70442,12 +70440,14 @@ class OSSUploader {
                 const isLastAttempt = attempt === this.retryConfig.maxRetries - 1;
                 const errorMessage = error instanceof Error ? error.message : 'Unknown error';
                 (0, utils_1.logWarning)(`Upload failed for ${fileStats.name}: ${errorMessage}`);
+                // Convert to Error for the retry check
+                const errorObj = error instanceof Error ? error : new Error(String(error));
                 // Check if it's a retryable error
-                if (!this.isRetryableError(error) || isLastAttempt) {
+                if (!this.isRetryableError(errorObj) || isLastAttempt) {
                     if (isLastAttempt) {
                         (0, utils_1.logError)(`💥 All ${this.retryConfig.maxRetries} attempts failed for ${fileStats.name}`);
                     }
-                    throw error;
+                    throw errorObj;
                 }
                 // Calculate backoff delay
                 const delayMs = (0, utils_1.calculateBackoffDelay)(attempt, this.retryConfig.baseDelay, this.retryConfig.maxDelay, this.retryConfig.backoffMultiplier);
@@ -70469,7 +70469,8 @@ class OSSUploader {
             return true;
         }
         // OSS SDK specific errors
-        if (error.code) {
+        const ossError = error;
+        if (ossError.code) {
             const retryableCodes = [
                 'RequestTimeout',
                 'ServiceUnavailable',
@@ -70478,12 +70479,12 @@ class OSSUploader {
                 'ConnectionTimeout',
                 'SocketTimeout'
             ];
-            return retryableCodes.includes(error.code);
+            return retryableCodes.includes(ossError.code);
         }
         // HTTP status codes that are retryable
-        if (error.status) {
+        if (ossError.status) {
             const retryableStatuses = [408, 429, 500, 502, 503, 504];
-            return retryableStatuses.includes(error.status);
+            return retryableStatuses.includes(ossError.status);
         }
         // Timeout errors
         if (error.message && error.message.toLowerCase().includes('timeout')) {
@@ -70596,24 +70597,24 @@ const types_1 = __nccwpck_require__(38522);
  * Validates required GitHub Action inputs
  */
 function validateInputs(inputs) {
-    const requiredFields = ['keyId', 'keySecret', 'bucket', 'assets'];
+    const requiredFields = ['accessKey', 'secretKey', 'bucket', 'assets'];
     for (const field of requiredFields) {
         if (!inputs[field]) {
-            throw new types_1.ValidationError(`Required input '${field}' is missing`, field);
+            throw new types_1.ValidationError(`Required input '${field}' is missing`);
         }
     }
     // Validate timeout
     if (inputs.timeout) {
         const timeout = parseInt(inputs.timeout, 10);
         if (isNaN(timeout) || timeout <= 0) {
-            throw new types_1.ValidationError('Timeout must be a positive number', 'timeout');
+            throw new types_1.ValidationError('Timeout must be a positive number');
         }
     }
     // Validate maxRetries
     if (inputs.maxRetries) {
         const retries = parseInt(inputs.maxRetries, 10);
         if (isNaN(retries) || retries < 0) {
-            throw new types_1.ValidationError('Max retries must be a non-negative number', 'maxRetries');
+            throw new types_1.ValidationError('Max retries must be a non-negative number');
         }
     }
 }
@@ -70689,7 +70690,8 @@ async function validateFile(filePath) {
         }
     }
     catch (error) {
-        if (error.code === 'ENOENT') {
+        const nodeError = error;
+        if (nodeError.code === 'ENOENT') {
             throw new types_1.FileNotFoundError(filePath);
         }
         throw error;

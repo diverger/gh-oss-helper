@@ -16,12 +16,13 @@ export interface UploadRule {
 }
 
 export interface UploadResult {
-  url: string;
-  name: string;
+  success: boolean;
+  filePath: string;
+  objectKey: string;
   size: number;
   etag?: string;
-  versionId?: string;
-  duration: number;
+  url?: string;
+  error?: string;
 }
 
 export interface UploadStats {
@@ -66,26 +67,28 @@ export interface UploadOptions {
 }
 
 export class OSSActionError extends Error {
+  public readonly code?: string;
+  public readonly statusCode?: number;
+  public readonly filePath?: string;
    
   constructor(
     message: string,
-    public readonly code?: string,
-    public readonly statusCode?: number,
-    public readonly filePath?: string
+    code?: string,
+    statusCode?: number,
+    filePath?: string
   ) {
     super(message);
     this.name = 'OSSActionError';
+    if (code !== undefined) this.code = code;
+    if (statusCode !== undefined) this.statusCode = statusCode;
+    if (filePath !== undefined) this.filePath = filePath;
   }
 }
 
 export class ValidationError extends OSSActionError {
-  constructor(message: string, field?: string) {
+  constructor(message: string) {
     super(`Validation Error: ${message}`, 'VALIDATION_ERROR');
     this.name = 'ValidationError';
-    // Field parameter is available for future error context
-    if (field) {
-      // Field can be used for detailed error reporting
-    }
   }
 }
 
@@ -101,4 +104,17 @@ export class FileNotFoundError extends OSSActionError {
     super(`File not found: ${filePath}`, 'FILE_NOT_FOUND', undefined, filePath);
     this.name = 'FileNotFoundError';
   }
+}
+
+export interface OSSResponse {
+  name: string;
+  url: string;
+  res: {
+    status: number;
+    headers: Record<string, string>;
+    size: number;
+    aborted: boolean;
+    rt: number;
+    keepAliveSocket: boolean;
+  };
 }

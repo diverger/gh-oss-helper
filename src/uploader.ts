@@ -13,6 +13,7 @@ import {
   UploadStats,
   RetryConfig,
   UploadOptions,
+  OSSResponse,
   NetworkError,
   FileNotFoundError
 } from './types';
@@ -179,7 +180,7 @@ export class OSSUploader {
     remotePath: string,
     options: UploadOptions
   ): Promise<UploadResult> {
-    const uploadOptions: any = {
+    const uploadOptions: Record<string, unknown> = {
       timeout: options.timeout || 120000,
       ...options
     };
@@ -187,25 +188,24 @@ export class OSSUploader {
     // Handle gzip compression
     if (options.gzip) {
       uploadOptions.headers = {
-        ...uploadOptions.headers,
+        ...(uploadOptions.headers as Record<string, string> || {}),
         'Content-Encoding': 'gzip'
       };
     }
 
-    const startTime = Date.now();
     const response = await this.oss.put(remotePath, resolve(localPath), uploadOptions);
-    const duration = Date.now() - startTime;
 
     // Handle OSS response structure safely
-    const ossResponse = response as any;
-    
+    const ossResponse = response as unknown as OSSResponse;
+    const fileStats = await getFileStats(localPath);
+
     return {
-      url: ossResponse.url,
-      name: ossResponse.name,
-      size: (await getFileStats(localPath)).size,
-      etag: ossResponse.res?.headers?.etag || ossResponse.etag,
-      versionId: ossResponse.res?.headers?.['x-oss-version-id'] || ossResponse.versionId,
-      duration
+      success: true,
+      filePath: localPath,
+      objectKey: remotePath,
+      size: fileStats.size,
+      etag: ossResponse.res?.headers?.etag,
+      url: ossResponse.url
     };
   }
 
@@ -231,18 +231,21 @@ export class OSSUploader {
         logSuccess(`Uploaded ${fileStats.name} in ${formatDuration(duration)}`);
         return result;
 
-      } catch (error) {
+      } catch (error: unknown) {
         const isLastAttempt = attempt === this.retryConfig.maxRetries - 1;
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
         logWarning(`Upload failed for ${fileStats.name}: ${errorMessage}`);
 
+        // Convert to Error for the retry check
+        const errorObj = error instanceof Error ? error : new Error(String(error));
+
         // Check if it's a retryable error
-        if (!this.isRetryableError(error) || isLastAttempt) {
+        if (!this.isRetryableError(errorObj) || isLastAttempt) {
           if (isLastAttempt) {
             logError(`💥 All ${this.retryConfig.maxRetries} attempts failed for ${fileStats.name}`);
           }
-          throw error;
+          throw errorObj;
         }
 
         // Calculate backoff delay
@@ -264,7 +267,7 @@ export class OSSUploader {
   /**
    * Check if an error is retryable
    */
-  private isRetryableError(error: any): boolean {
+  private isRetryableError(error: Error): boolean {
     if (error instanceof FileNotFoundError) {
       return false; // File not found is not retryable
     }
@@ -275,7 +278,8 @@ export class OSSUploader {
     }
 
     // OSS SDK specific errors
-    if (error.code) {
+    const ossError = error as any;
+    if (ossError.code) {
       const retryableCodes = [
         'RequestTimeout',
         'ServiceUnavailable',
@@ -284,13 +288,13 @@ export class OSSUploader {
         'ConnectionTimeout',
         'SocketTimeout'
       ];
-      return retryableCodes.includes(error.code);
+      return retryableCodes.includes(ossError.code);
     }
 
     // HTTP status codes that are retryable
-    if (error.status) {
+    if (ossError.status) {
       const retryableStatuses = [408, 429, 500, 502, 503, 504];
-      return retryableStatuses.includes(error.status);
+      return retryableStatuses.includes(ossError.status);
     }
 
     // Timeout errors

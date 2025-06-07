@@ -5,7 +5,7 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { OSSUploader } from './uploader';
-import { ActionInputs, OSSConfig, RetryConfig, UploadOptions } from './types';
+import { ActionInputs, OSSConfig, RetryConfig, UploadOptions, UploadResult, UploadStats } from './types';
 import { validateInputs, parseUploadRules, parseHeaders, formatFileSize, formatDuration } from './utils';
 
 /**
@@ -170,7 +170,7 @@ function logConnectionInfo(config: OSSConfig): void {
 /**
  * Set GitHub Action outputs
  */
-async function setActionOutputs(results: any[], stats: any, config: OSSConfig): Promise<void> {
+async function setActionOutputs(results: UploadResult[], stats: UploadStats, config: OSSConfig): Promise<void> {
   // Set URL outputs only if there are results
   if (results.length > 0) {
     core.setOutput('url', results.map(r => r.url).join(','));
@@ -198,7 +198,7 @@ async function setActionOutputs(results: any[], stats: any, config: OSSConfig): 
 /**
  * Create detailed job summary
  */
-async function createJobSummary(stats: any, config: OSSConfig, startTime: number): Promise<void> {
+async function createJobSummary(stats: UploadStats, config: OSSConfig, startTime: number): Promise<void> {
   const totalTime = formatDuration(Date.now() - startTime);
   const totalSize = formatFileSize(stats.totalSize);
   const uploadedSize = formatFileSize(stats.uploadedSize);
