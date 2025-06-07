@@ -32,8 +32,8 @@
   uses: your-username/gh-oss-helper@[VERSION]
   with:
     region: 'oss-cn-hangzhou'
-    key-id: ${{ secrets.OSS_KEY_ID }}
-    key-secret: ${{ secrets.OSS_KEY_SECRET }}
+    access-key: ${{ secrets.OSS_ACCESS_KEY }}
+    secret-key: ${{ secrets.OSS_SECRET_KEY }}
     bucket: 'my-bucket'
     assets: |
       dist/:website/

@@ -71,8 +71,8 @@ jobs:
       uses: ./
       with:
         region: ${{ env.OSS_REGION }}
-        key-id: 'test-key-id'
-        key-secret: 'test-key-secret'
+        access-key: 'test-key-id'
+        secret-key: 'test-key-secret'
         bucket: ${{ env.OSS_BUCKET }}
         assets: |
           test-files/README.md:docs/readme.md
@@ -87,8 +87,8 @@ jobs:
       uses: ./
       with:
         region: ${{ env.OSS_REGION }}
-        key-id: ${{ env.OSS_ACCESS_KEY }}
-        key-secret: ${{ env.OSS_SECRET_KEY }}
+        access-key: ${{ env.OSS_ACCESS_KEY }}
+        secret-key: ${{ env.OSS_SECRET_KEY }}
         bucket: ${{ env.OSS_BUCKET }}
         assets: |
           test-files/README.md:docs/readme.md
@@ -100,8 +100,8 @@ jobs:
       uses: ./
       with:
         region: ${{ env.OSS_REGION }}
-        key-id: ${{ env.OSS_ACCESS_KEY }}
-        key-secret: ${{ env.OSS_SECRET_KEY }}
+        access-key: ${{ env.OSS_ACCESS_KEY }}
+        secret-key: ${{ env.OSS_SECRET_KEY }}
         bucket: ${{ env.OSS_BUCKET }}
         assets: |
           test-files/README.md:docs/readme.md
@@ -115,8 +115,8 @@ jobs:
       uses: ./
       with:
         region: ${{ env.OSS_REGION }}
-        key-id: ${{ env.OSS_ACCESS_KEY }}
-        key-secret: ${{ env.OSS_SECRET_KEY }}
+        access-key: ${{ env.OSS_ACCESS_KEY }}
+        secret-key: ${{ env.OSS_SECRET_KEY }}
         bucket: ${{ env.OSS_BUCKET }}
         assets: |
           test-files/:website/
@@ -128,8 +128,8 @@ jobs:
       uses: ./
       with:
         region: ${{ env.OSS_REGION }}
-        key-id: ${{ env.OSS_ACCESS_KEY }}
-        key-secret: ${{ env.OSS_SECRET_KEY }}
+        access-key: ${{ env.OSS_ACCESS_KEY }}
+        secret-key: ${{ env.OSS_SECRET_KEY }}
         bucket: ${{ env.OSS_BUCKET }}
         assets: |
           test-files/README.md:docs/readme.md
@@ -146,8 +146,8 @@ jobs:
       uses: ./
       with:
         region: ${{ env.OSS_REGION }}
-        key-id: ${{ env.OSS_ACCESS_KEY }}
-        key-secret: ${{ env.OSS_SECRET_KEY }}
+        access-key: ${{ env.OSS_ACCESS_KEY }}
+        secret-key: ${{ env.OSS_SECRET_KEY }}
         bucket: ${{ env.OSS_BUCKET }}
         assets: ${{ inputs.custom_assets }}
         timeout: 180

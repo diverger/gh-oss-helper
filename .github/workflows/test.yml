@@ -56,8 +56,8 @@ jobs:
       run: |
         # Set environment variables for testing
         export INPUT_REGION="oss-cn-hangzhou"
-        export INPUT_KEY_ID="test-key-id"
-        export INPUT_KEY_SECRET="test-key-secret"
+        export INPUT_ACCESS_KEY="test-access-key"
+        export INPUT_SECRET_KEY="test-secret-key"
         export INPUT_BUCKET="test-bucket"
         export INPUT_ASSETS="package.json:test.json"
         export INPUT_TIMEOUT="60"

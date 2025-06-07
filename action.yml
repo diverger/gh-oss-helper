@@ -11,10 +11,10 @@ inputs:
   endpoint:
     required: false
     description: 'Custom OSS endpoint URL'
-  key-id:
+  access-key:
     required: true
     description: 'Alibaba Cloud Access Key ID'
-  key-secret:
+  secret-key:
     required: true
     description: 'Alibaba Cloud Access Key Secret'
   bucket:

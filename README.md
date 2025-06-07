@@ -32,12 +32,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Upload to OSS
         uses: yourusername/gh-oss-helper@v1
         with:
-          key-id: ${{ secrets.OSS_KEY_ID }}
-          key-secret: ${{ secrets.OSS_KEY_SECRET }}
+          access-key: ${{ secrets.OSS_ACCESS_KEY }}
+          secret-key: ${{ secrets.OSS_SECRET_KEY }}
           bucket: my-website-bucket
           region: oss-cn-hangzhou
           assets: |
@@ -49,8 +49,8 @@ jobs:
 
 | Input | Required | Default | Description |
 |-------|----------|---------|-------------|
-| `key-id` | ✅ | - | Alibaba Cloud Access Key ID |
-| `key-secret` | ✅ | - | Alibaba Cloud Access Key Secret |
+| `access-key` | ✅ | - | Alibaba Cloud Access Key ID |
+| `secret-key` | ✅ | - | Alibaba Cloud Access Key Secret |
 | `bucket` | ✅ | - | OSS bucket name |
 | `assets` | ✅ | - | Upload rules (see format below) |
 | `region` | ❌ | - | OSS region (e.g., `oss-cn-hangzhou`) |
@@ -97,7 +97,7 @@ assets: |
   # Upload specific files
   package.json:meta/package.json
   README.md:docs/readme.md
-  
+
   # Upload with custom path structure
   src/assets/**/*:static/assets/
   public/favicon.ico:favicon.ico
@@ -157,30 +157,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          
+
       - name: Install dependencies
         run: npm ci
-        
+
       - name: Build website
         run: npm run build
-        
+
       - name: Upload to OSS
         uses: yourusername/gh-oss-helper@v1
         with:
-          key-id: ${{ secrets.OSS_KEY_ID }}
-          key-secret: ${{ secrets.OSS_KEY_SECRET }}
+          access-key: ${{ secrets.OSS_ACCESS_KEY }}
+          secret-key: ${{ secrets.OSS_SECRET_KEY }}
           bucket: my-website
           region: oss-cn-hangzhou
           public-read: true
           enable-gzip: true
           assets: |
             dist/**/*:/
-            
+
       - name: Display upload results
         run: |
           echo "Uploaded ${{ steps.upload.outputs.count }} files"
@@ -200,12 +200,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Upload documentation
         uses: yourusername/gh-oss-helper@v1
         with:
-          key-id: ${{ secrets.OSS_KEY_ID }}
-          key-secret: ${{ secrets.OSS_KEY_SECRET }}
+          access-key: ${{ secrets.OSS_ACCESS_KEY }}
+          secret-key: ${{ secrets.OSS_SECRET_KEY }}
           bucket: documentation-bucket
           region: oss-cn-beijing
           timeout: 60

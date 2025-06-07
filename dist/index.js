@@ -70038,8 +70038,8 @@ async function run() {
  */
 function getActionInputs() {
     return {
-        keyId: core.getInput('key-id', { required: true }),
-        keySecret: core.getInput('key-secret', { required: true }),
+        keyId: core.getInput('access-key', { required: true }),
+        keySecret: core.getInput('secret-key', { required: true }),
         bucket: core.getInput('bucket', { required: true }),
         assets: core.getInput('assets', { required: true }),
         region: core.getInput('region') || undefined,

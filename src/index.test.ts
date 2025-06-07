@@ -40,8 +40,8 @@ describe('Main Action', () => {
     mockCore.getInput.mockImplementation((name: string) => {
       const inputs: Record<string, string> = {
         'region': 'oss-cn-hangzhou',
-        'key-id': 'test-key-id',
-        'key-secret': 'test-key-secret',
+        'access-key': 'test-key-id',
+        'secret-key': 'test-key-secret',
         'bucket': 'test-bucket',
         'assets': 'src/**/*:dist/',
         'timeout': '120',
@@ -93,8 +93,8 @@ describe('Main Action', () => {
 
   afterEach(() => {
     delete process.env.INPUT_REGION;
-    delete process.env.INPUT_KEY_ID;
-    delete process.env.INPUT_KEY_SECRET;
+    delete process.env.INPUT_ACCESS_KEY;
+    delete process.env.INPUT_SECRET_KEY;
     delete process.env.INPUT_BUCKET;
     delete process.env.INPUT_ASSETS;
   });
