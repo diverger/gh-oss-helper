@@ -1,0 +1,58 @@
+{
+  "name": "gh-oss-helper",
+  "version": "1.0.0",
+  "description": "A modern TypeScript GitHub Action for uploading assets to Alibaba Cloud OSS with advanced retry logic and comprehensive error handling",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "tsc && ncc build lib/index.js -m -o dist",
+    "build:watch": "tsc -w",
+    "dev": "npm run build:watch",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "clean": "rm -rf lib dist",
+    "package": "npm run clean && npm run build && npm test",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "github-actions", 
+    "oss", 
+    "alibaba-cloud", 
+    "aliyun",
+    "upload", 
+    "typescript",
+    "file-upload",
+    "object-storage",
+    "ci-cd",
+    "deployment"
+  ],
+  "author": "Your Name <your.email@example.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/gh-oss-helper.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/gh-oss-helper/issues"
+  },
+  "homepage": "https://github.com/yourusername/gh-oss-helper#readme",
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@actions/github": "^6.0.0",
+    "ali-oss": "^6.23.0",
+    "fast-glob": "^3.3.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "@typescript-eslint/eslint-plugin": "^8.33.0",
+    "@typescript-eslint/parser": "^8.33.0",
+    "@eslint/js": "^9.15.0",
+    "@vercel/ncc": "^0.38.2",
+    "eslint": "^9.15.0",
+    "vitest": "^2.0.0",
+    "@types/ali-oss": "^6.16.11",
+    "typescript": "^5.7.2"
+  }
+}

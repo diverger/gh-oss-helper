@@ -1,0 +1,76 @@
+
+name: 'GH OSS Helper'
+description: 'A modern TypeScript GitHub Action for uploading assets to Alibaba Cloud OSS with advanced retry logic and comprehensive error handling'
+branding:
+  icon: 'upload-cloud'
+  color: 'blue'
+inputs:
+  region:
+    required: false
+    description: 'OSS region (e.g. oss-cn-hangzhou)'
+  endpoint:
+    required: false
+    description: 'Custom OSS endpoint URL'
+  key-id:
+    required: true
+    description: 'Alibaba Cloud Access Key ID'
+  key-secret:
+    required: true
+    description: 'Alibaba Cloud Access Key Secret'
+  bucket:
+    required: true
+    description: 'OSS bucket name'
+  assets:
+    required: true
+    description: 'Upload rules in format "src:dst", one per line. Use "/" suffix for directories'
+  timeout:
+    required: false
+    default: '120'
+    description: 'Upload timeout in seconds (default: 120)'
+  max-retries:
+    required: false
+    default: '3'
+    description: 'Maximum number of retry attempts for failed uploads'
+  continue-on-error:
+    required: false
+    default: 'false'
+    description: 'Continue action even if some uploads fail'
+  enable-gzip:
+    required: false
+    default: 'false'
+    description: 'Enable gzip compression for uploads'
+  public-read:
+    required: false
+    default: 'false'
+    description: 'Set uploaded files to public-read ACL'
+  headers:
+    required: false
+    description: 'Custom headers as JSON string (e.g., {"Cache-Control":"max-age=3600"})'
+outputs:
+  url:
+    description: 'Comma-separated list of uploaded file URLs'
+  urls:
+    description: 'Array of uploaded file URLs'
+  count:
+    description: 'Number of files successfully uploaded'
+  total-files:
+    description: 'Total number of files processed'
+  uploaded-files:
+    description: 'Number of successfully uploaded files'
+  failed-files:
+    description: 'Number of failed uploads'
+  total-size:
+    description: 'Total size of all files in bytes'
+  uploaded-size:
+    description: 'Total size of successfully uploaded files in bytes'
+  success-rate:
+    description: 'Upload success rate as percentage'
+  duration:
+    description: 'Total upload duration in milliseconds'
+  bucket:
+    description: 'OSS bucket name used'
+  region:
+    description: 'OSS region used'
+runs:
+  using: 'node20'
+  main: 'lib/index.js'
