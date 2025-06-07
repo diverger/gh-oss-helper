@@ -70417,8 +70417,8 @@ class OSSUploader {
             filePath: localPath,
             objectKey: remotePath,
             size: fileStats.size,
-            etag: ossResponse.res?.headers?.etag,
-            url: ossResponse.url
+            ...(ossResponse.res?.headers?.etag && { etag: ossResponse.res.headers.etag }),
+            ...(ossResponse.url && { url: ossResponse.url })
         };
     }
     /**
