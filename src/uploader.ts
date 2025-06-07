@@ -14,6 +14,7 @@ import {
   RetryConfig,
   UploadOptions,
   OSSResponse,
+  OSSSDKError,
   NetworkError,
   FileNotFoundError
 } from './types';
@@ -204,8 +205,8 @@ export class OSSUploader {
       filePath: localPath,
       objectKey: remotePath,
       size: fileStats.size,
-      etag: ossResponse.res?.headers?.etag,
-      url: ossResponse.url
+      ...(ossResponse.res?.headers?.etag && { etag: ossResponse.res.headers.etag }),
+      ...(ossResponse.url && { url: ossResponse.url })
     };
   }
 
@@ -278,7 +279,7 @@ export class OSSUploader {
     }
 
     // OSS SDK specific errors
-    const ossError = error as any;
+    const ossError = error as Error & OSSSDKError;
     if (ossError.code) {
       const retryableCodes = [
         'RequestTimeout',

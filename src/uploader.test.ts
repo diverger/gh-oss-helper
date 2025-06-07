@@ -47,7 +47,7 @@ describe('OSSUploader', () => {
       accessKeySecret: 'test-secret',
       bucket: 'test-bucket',
       region: 'oss-cn-hangzhou',
-      timeout: 120000
+      timeout: 600000
     };
 
     mockRetryConfig = {

@@ -107,14 +107,16 @@ export class FileNotFoundError extends OSSActionError {
 }
 
 export interface OSSResponse {
-  name: string;
-  url: string;
-  res: {
-    status: number;
-    headers: Record<string, string>;
-    size: number;
-    aborted: boolean;
-    rt: number;
-    keepAliveSocket: boolean;
+  res?: {
+    headers?: {
+      etag?: string;
+    };
   };
+  url?: string;
+}
+
+export interface OSSSDKError {
+  code?: string;
+  status?: number;
+  message?: string;
 }

@@ -18,31 +18,29 @@ describe('Type Definitions', () => {
     it('should define all required input properties', () => {
       const inputs: ActionInputs = {
         region: 'oss-cn-hangzhou',
-        keyId: 'test-key',
-        keySecret: 'test-secret',
+        accessKey: 'test-key',
+        secretKey: 'test-secret',
         bucket: 'test-bucket',
         assets: 'src/**/*:dist/',
-        timeout: 600000,
-        continueOnError: false,
-        headers: {},
-        maxRetries: 3,
-        baseDelay: 1000,
-        maxDelay: 10000,
-        backoffMultiplier: 2
+        timeout: '600',
+        continueOnError: 'false',
+        headers: '{}',
+        maxRetries: '3',
+        enableGzip: 'false',
+        publicRead: 'false'
       };
 
       expect(inputs.region).toBe('oss-cn-hangzhou');
-      expect(inputs.keyId).toBe('test-key');
-      expect(inputs.keySecret).toBe('test-secret');
+      expect(inputs.accessKey).toBe('test-key');
+      expect(inputs.secretKey).toBe('test-secret');
       expect(inputs.bucket).toBe('test-bucket');
       expect(inputs.assets).toBe('src/**/*:dist/');
-      expect(inputs.timeout).toBe(600000);
-      expect(inputs.continueOnError).toBe(false);
-      expect(inputs.headers).toEqual({});
-      expect(inputs.maxRetries).toBe(3);
-      expect(inputs.baseDelay).toBe(1000);
-      expect(inputs.maxDelay).toBe(10000);
-      expect(inputs.backoffMultiplier).toBe(2);
+      expect(inputs.timeout).toBe('600');
+      expect(inputs.continueOnError).toBe('false');
+      expect(inputs.headers).toBe('{}');
+      expect(inputs.maxRetries).toBe('3');
+      expect(inputs.enableGzip).toBe('false');
+      expect(inputs.publicRead).toBe('false');
     });
   });
 
