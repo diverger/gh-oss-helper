@@ -6,7 +6,7 @@
 [![Build and Package](https://github.com/diverger/gh-oss-helper/actions/workflows/build-and-package.yml/badge.svg)](https://github.com/diverger/gh-oss-helper/actions)
 [![Unit Tests](https://github.com/diverger/gh-oss-helper/actions/workflows/test.yml/badge.svg)](https://github.com/diverger/gh-oss-helper/actions)
 
-A modern TypeScript GitHub Action for uploading assets to Alibaba Cloud OSS (Object Storage Service) with advanced retry logic, comprehensive error handling, and extensive customization options.
+A TypeScript GitHub Action for uploading assets to Alibaba Cloud OSS (Object Storage Service) with advanced retry logic, comprehensive error handling, and extensive customization options.
 
 ## ✨ Features
 
