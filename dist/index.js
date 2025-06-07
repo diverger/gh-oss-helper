@@ -70060,7 +70060,7 @@ function createOSSConfig(inputs) {
         accessKeyId: inputs.accessKey,
         accessKeySecret: inputs.secretKey,
         bucket: inputs.bucket,
-        timeout: parseInt(inputs.timeout || '120', 10) * 1000 // Convert to milliseconds
+        timeout: parseInt(inputs.timeout || '600', 10) * 1000 // Convert to milliseconds
     };
     if (inputs.region) {
         config.region = inputs.region;
@@ -70086,7 +70086,7 @@ function createRetryConfig(inputs) {
  */
 function createUploadOptions(inputs) {
     const options = {
-        timeout: parseInt(inputs.timeout || '120', 10) * 1000
+        timeout: parseInt(inputs.timeout || '600', 10) * 1000
     };
     // Parse custom headers
     const customHeaders = (0, utils_1.parseHeaders)(inputs.headers);
@@ -70398,7 +70398,7 @@ class OSSUploader {
      */
     async performUpload(localPath, remotePath, options) {
         const uploadOptions = {
-            timeout: options.timeout || 120000,
+            timeout: options.timeout || 600000,
             ...options
         };
         // Handle gzip compression
