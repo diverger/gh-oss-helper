@@ -70,7 +70,7 @@ export class OSSActionError extends Error {
   public readonly code?: string;
   public readonly statusCode?: number;
   public readonly filePath?: string;
-   
+
   constructor(
     message: string,
     code?: string,
