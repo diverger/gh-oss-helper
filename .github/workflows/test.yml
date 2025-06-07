@@ -1,0 +1,76 @@
+name: Unit Tests
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20]
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run linting
+      run: npm run lint
+
+    - name: Run TypeScript check
+      run: npm run check
+
+    - name: Run unit tests
+      run: npm test
+
+    - name: Run tests with coverage
+      if: matrix.node-version == 20
+      run: npm run test:coverage
+
+    - name: Build action
+      run: npm run build
+
+    - name: Verify build output
+      run: |
+        if [ ! -f "dist/index.js" ]; then
+          echo "❌ Build failed: dist/index.js not found"
+          exit 1
+        fi
+        echo "✅ Build verification passed"
+        echo "📊 Build size: $(du -h dist/index.js | cut -f1)"
+
+    - name: Test action execution (dry run)
+      run: |
+        # Set environment variables for testing
+        export INPUT_REGION="oss-cn-hangzhou"
+        export INPUT_KEY_ID="test-key-id"
+        export INPUT_KEY_SECRET="test-key-secret"
+        export INPUT_BUCKET="test-bucket"
+        export INPUT_ASSETS="package.json:test.json"
+        export INPUT_TIMEOUT="60"
+        export INPUT_CONTINUE_ON_ERROR="true"
+
+        # This will test the action's input parsing and initial logic
+        echo "🧪 Testing action execution (will fail at OSS connection, which is expected)..."
+        node dist/index.js || echo "Expected failure - no real OSS credentials"
+
+    - name: Upload coverage reports
+      if: matrix.node-version == 20 && github.event_name == 'push'
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: coverage/
+        retention-days: 30

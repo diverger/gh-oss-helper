@@ -197,6 +197,21 @@ The script automatically:
 ## 🧪 Testing
 
 ### Local Testing
+
+#### **Quick Local Tests**
+```bash
+# Run comprehensive local test suite
+./test-local.sh
+
+# Run specific tests
+./test-local.sh unit       # Unit tests only
+./test-local.sh build      # Build test only
+./test-local.sh action     # Action execution test
+./test-local.sh ts         # TypeScript check only
+./test-local.sh lint       # Linting only
+```
+
+#### **Manual Testing**
 ```bash
 # Run all tests
 npm test
@@ -206,11 +221,35 @@ npm run test:watch
 
 # Run with coverage
 npm run test:coverage
+
+# TypeScript compilation check
+npm run check
+
+# Build and validate
+./build.sh
 ```
 
 ### GitHub Actions Testing
-- **Build Tests:** Automated testing of built action
-- **Integration Tests:** Test with actual OSS uploads (if configured)
+
+#### **1. Unit Tests** (`test.yml`)
+- **Triggers:** Push, PR, manual dispatch
+- **Tests:** Unit tests, linting, TypeScript, build validation
+- **Matrix:** Node.js 18 and 20
+- **Coverage:** Generates coverage reports
+
+#### **2. Integration Testing** (`test-action.yml`)
+- **Triggers:** Manual dispatch with options
+- **Test Types:**
+  - `dry-run` - Test with fake credentials (safe)
+  - `basic-upload` - Single file upload
+  - `multiple-files` - Multiple file upload
+  - `directory-upload` - Directory upload
+  - `advanced-options` - Test all features
+- **Configuration:** Choose region, bucket, custom assets
+
+#### **3. Build Tests** (`build-and-package.yml`)
+- **Automatic:** Builds on every push/PR
+- **Validation:** Ensures action builds correctly
 
 ## 📦 Distribution
 
@@ -312,10 +351,12 @@ git push origin v1.2.0
 - Keep DEVELOPMENT.md updated with process changes
 
 ### 🧪 **Testing**
-- Test with `dry_run: true` first
-- Use test workflows for comprehensive validation
-- Verify error handling and retry logic
-- Test timeout settings work correctly
+- **Use local tests**: Run `./test-local.sh` for comprehensive local testing
+- **Test before releases**: Use GitHub Actions "Test OSS Helper" workflow
+- **Unit test coverage**: Maintain good test coverage for core functions
+- **Integration testing**: Test with real OSS credentials in private repos
+- **Dry run testing**: Always test with fake credentials first
+- **Multiple environments**: Test on different Node.js versions
 
 ## 🐛 Troubleshooting
 

@@ -1,0 +1,168 @@
+name: Test OSS Helper
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_type:
+        description: 'Type of test to run'
+        required: true
+        type: choice
+        options:
+          - 'basic-upload'
+          - 'multiple-files'
+          - 'directory-upload'
+          - 'advanced-options'
+          - 'dry-run'
+        default: 'dry-run'
+      region:
+        description: 'OSS Region (e.g., oss-cn-hangzhou)'
+        required: false
+        default: 'oss-cn-hangzhou'
+      bucket:
+        description: 'OSS Bucket Name'
+        required: false
+        default: 'test-bucket'
+      custom_assets:
+        description: 'Custom assets (optional, for advanced testing)'
+        required: false
+        default: ''
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Create test files
+      run: |
+        # Create test directory structure
+        mkdir -p test-files/{docs,images,config}
+
+        # Create various test files
+        echo "# Test README" > test-files/README.md
+        echo "Test content for documentation" > test-files/docs/guide.md
+        echo "Configuration file content" > test-files/config/app.json
+        echo "Binary-like content" > test-files/images/logo.png
+
+        # Create a larger file for testing
+        head -c 1024 /dev/urandom > test-files/large-file.bin
+
+        # Create files with special characters
+        echo "Unicode test 中文测试" > "test-files/unicode-测试.txt"
+        echo "Spaces in filename" > "test-files/file with spaces.txt"
+
+        echo "📁 Created test files:"
+        find test-files -type f -exec ls -lh {} \;
+
+    - name: Test - Dry Run
+      if: inputs.test_type == 'dry-run'
+      uses: ./
+      with:
+        region: ${{ inputs.region }}
+        key-id: 'test-key-id'
+        key-secret: 'test-key-secret'
+        bucket: ${{ inputs.bucket }}
+        assets: |
+          test-files/README.md:docs/readme.md
+        timeout: 60
+        continue-on-error: true
+      env:
+        # This will fail but test the action logic
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Test - Basic Upload (Dry Run)
+      if: inputs.test_type == 'basic-upload'
+      uses: ./
+      with:
+        region: ${{ inputs.region }}
+        key-id: ${{ secrets.OSS_KEY_ID || 'test-key' }}
+        key-secret: ${{ secrets.OSS_KEY_SECRET || 'test-secret' }}
+        bucket: ${{ inputs.bucket }}
+        assets: |
+          test-files/README.md:docs/readme.md
+        timeout: 120
+        continue-on-error: true
+
+    - name: Test - Multiple Files
+      if: inputs.test_type == 'multiple-files'
+      uses: ./
+      with:
+        region: ${{ inputs.region }}
+        key-id: ${{ secrets.OSS_KEY_ID || 'test-key' }}
+        key-secret: ${{ secrets.OSS_KEY_SECRET || 'test-secret' }}
+        bucket: ${{ inputs.bucket }}
+        assets: |
+          test-files/README.md:docs/readme.md
+          test-files/docs/guide.md:documentation/guide.md
+          test-files/config/app.json:config/application.json
+        timeout: 180
+        continue-on-error: true
+
+    - name: Test - Directory Upload
+      if: inputs.test_type == 'directory-upload'
+      uses: ./
+      with:
+        region: ${{ inputs.region }}
+        key-id: ${{ secrets.OSS_KEY_ID || 'test-key' }}
+        key-secret: ${{ secrets.OSS_KEY_SECRET || 'test-secret' }}
+        bucket: ${{ inputs.bucket }}
+        assets: |
+          test-files/:website/
+        timeout: 180
+        continue-on-error: true
+
+    - name: Test - Advanced Options
+      if: inputs.test_type == 'advanced-options'
+      uses: ./
+      with:
+        region: ${{ inputs.region }}
+        key-id: ${{ secrets.OSS_KEY_ID || 'test-key' }}
+        key-secret: ${{ secrets.OSS_KEY_SECRET || 'test-secret' }}
+        bucket: ${{ inputs.bucket }}
+        assets: |
+          test-files/README.md:docs/readme.md
+          test-files/large-file.bin:files/large.bin
+        timeout: 300
+        max-retries: 5
+        enable-gzip: true
+        public-read: true
+        headers: '{"Cache-Control":"max-age=3600","Content-Type":"text/html"}'
+        continue-on-error: true
+
+    - name: Test - Custom Assets
+      if: inputs.custom_assets != ''
+      uses: ./
+      with:
+        region: ${{ inputs.region }}
+        key-id: ${{ secrets.OSS_KEY_ID || 'test-key' }}
+        key-secret: ${{ secrets.OSS_KEY_SECRET || 'test-secret' }}
+        bucket: ${{ inputs.bucket }}
+        assets: ${{ inputs.custom_assets }}
+        timeout: 180
+        continue-on-error: true
+
+    - name: Display Results
+      if: always()
+      run: |
+        echo "🧪 Test completed!"
+        echo "📊 Test type: ${{ inputs.test_type }}"
+        echo "🌏 Region: ${{ inputs.region }}"
+        echo "🪣 Bucket: ${{ inputs.bucket }}"
+
+        if [ -n "${{ inputs.custom_assets }}" ]; then
+          echo "📋 Custom assets: ${{ inputs.custom_assets }}"
+        fi
+
+        echo ""
+        echo "💡 To test with real credentials:"
+        echo "1. Add OSS_KEY_ID and OSS_KEY_SECRET to repository secrets"
+        echo "2. Use a real bucket name"
+        echo "3. Re-run this workflow"
+        echo ""
+        echo "🔍 Check the action logs above for detailed results"
