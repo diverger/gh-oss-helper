@@ -12,6 +12,7 @@ on:
           - 'multiple-files'
           - 'directory-upload'
           - 'advanced-options'
+          - 'large-file-test'
           - 'dry-run'
         default: 'dry-run'
       region:
@@ -56,7 +57,7 @@ jobs:
         echo "Configuration file content" > test-files/config/app.json
         echo "Binary-like content" > test-files/images/logo.png
 
-        # Create a larger file for testing
+        # Create a larger file for testing (1KB)
         head -c 1024 /dev/urandom > test-files/large-file.bin
 
         # Create files with special characters
@@ -65,6 +66,39 @@ jobs:
 
         echo "📁 Created test files:"
         find test-files -type f -exec ls -lh {} \;
+
+    - name: Create large files for big file testing
+      if: inputs.test_type == 'large-file-test'
+      run: |
+        echo "🏗️ Creating large test files..."
+
+        # Check available disk space
+        echo "💾 Available disk space:"
+        df -h .
+
+        # Create a 1.2GB file for testing large file uploads
+        # Using dd with sparse file creation for efficiency
+        echo "📦 Creating 1.2GB test file..."
+        dd if=/dev/zero of=test-files/huge-file-1.2gb.bin bs=1M count=1200 status=progress
+
+        # Create a 2.5GB file for extreme testing (if space allows)
+        if [ $(df . | tail -1 | awk '{print $4}') -gt 3000000 ]; then
+          echo "📦 Creating 2.5GB test file..."
+          dd if=/dev/zero of=test-files/massive-file-2.5gb.bin bs=1M count=2500 status=progress
+        else
+          echo "⚠️ Insufficient disk space for 2.5GB file, skipping..."
+        fi
+
+        # Create some medium-large files too
+        echo "📦 Creating additional large files..."
+        dd if=/dev/urandom of=test-files/random-500mb.bin bs=1M count=500 status=progress
+        dd if=/dev/zero of=test-files/zeros-800mb.bin bs=1M count=800 status=progress
+
+        echo "📊 Large file summary:"
+        ls -lh test-files/*.bin
+        echo ""
+        echo "💾 Disk space after creation:"
+        df -h .
 
     - name: Test - Dry Run
       if: inputs.test_type == 'dry-run'
@@ -140,6 +174,39 @@ jobs:
         public-read: true
         headers: '{"Cache-Control":"max-age=3600","Content-Type":"text/html"}'
         continue-on-error: true
+
+    - name: Test - Large File Upload (>1GB)
+      if: inputs.test_type == 'large-file-test'
+      uses: ./
+      with:
+        region: ${{ env.OSS_REGION }}
+        access-key: ${{ env.OSS_ACCESS_KEY }}
+        secret-key: ${{ env.OSS_SECRET_KEY }}
+        bucket: ${{ env.OSS_BUCKET }}
+        assets: |
+          test-files/huge-file-1.2gb.bin:large-files/huge-1.2gb.bin
+          test-files/random-500mb.bin:large-files/random-500mb.bin
+          test-files/zeros-800mb.bin:large-files/zeros-800mb.bin
+        timeout: 1800
+        max-retries: 3
+        enable-gzip: false
+        continue-on-error: true
+
+    - name: Test - Massive File Upload (2.5GB if available)
+      if: inputs.test_type == 'large-file-test'
+      uses: ./
+      with:
+        region: ${{ env.OSS_REGION }}
+        access-key: ${{ env.OSS_ACCESS_KEY }}
+        secret-key: ${{ env.OSS_SECRET_KEY }}
+        bucket: ${{ env.OSS_BUCKET }}
+        assets: |
+          test-files/massive-file-2.5gb.bin:extreme-files/massive-2.5gb.bin
+        timeout: 3600
+        max-retries: 2
+        enable-gzip: false
+        continue-on-error: true
+      continue-on-error: true
 
     - name: Test - Custom Assets
       if: inputs.custom_assets != ''
