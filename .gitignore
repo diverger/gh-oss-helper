@@ -1,3 +1,22 @@
 node_modules/
 .DS_Store
 package-lock.json
+
+# Build outputs - we commit dist/ but not lib/
+lib/
+*.tsbuildinfo
+
+# Test coverage
+coverage/
+
+# Temporary files
+*.tmp
+*.log
+RELEASE_NOTES_backup_*
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db

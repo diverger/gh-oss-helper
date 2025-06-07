@@ -65,4 +65,3 @@ export declare function logWarning(message: string): void;
  * Logs error with consistent formatting
  */
 export declare function logError(message: string): void;
-//# sourceMappingURL=utils.d.ts.map

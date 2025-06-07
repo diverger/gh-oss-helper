@@ -73,4 +73,3 @@ export declare class NetworkError extends OSSActionError {
 export declare class FileNotFoundError extends OSSActionError {
     constructor(filePath: string);
 }
-//# sourceMappingURL=types.d.ts.map

@@ -73,4 +73,4 @@ outputs:
     description: 'OSS region used'
 runs:
   using: 'node20'
-  main: 'lib/index.js'
+  main: 'dist/index.js'

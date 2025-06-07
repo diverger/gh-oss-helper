@@ -1,0 +1,112 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release'
+        required: true
+        type: string
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run tests
+      run: npm test
+
+    - name: Build action
+      run: npm run build
+
+    - name: Verify build
+      run: |
+        if [ ! -f "dist/index.js" ]; then
+          echo "❌ Build failed: dist/index.js not found"
+          exit 1
+        fi
+        echo "✅ Build verification passed"
+
+    - name: Get tag
+      id: tag
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+        else
+          echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Get release notes
+      id: release_notes
+      run: |
+        if [ -f "RELEASE_NOTES.md" ]; then
+          echo "Using RELEASE_NOTES.md for release notes"
+          echo "body<<EOF" >> $GITHUB_OUTPUT
+          cat RELEASE_NOTES.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+        else
+          echo "No RELEASE_NOTES.md found, using auto-generated notes"
+          echo "body=Release ${{ steps.tag.outputs.tag }}" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.tag.outputs.tag }}
+        release_name: ${{ steps.tag.outputs.tag }}
+        body: ${{ steps.release_notes.outputs.body }}
+        draft: false
+        prerelease: false
+
+    - name: Update major version tag
+      run: |
+        TAG=${{ steps.tag.outputs.tag }}
+        MAJOR_VERSION=$(echo $TAG | cut -d. -f1)
+
+        echo "Updating major version tag: $MAJOR_VERSION"
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+
+        # Create or update the major version tag
+        git tag -fa $MAJOR_VERSION -m "Update $MAJOR_VERSION to $TAG"
+        git push origin $MAJOR_VERSION --force
+
+    - name: Package action
+      run: |
+        mkdir -p release-package
+        cp -r dist/ release-package/
+        cp action.yml release-package/
+        cp package.json release-package/
+        cp README.md release-package/
+        tar -czf gh-oss-helper-${{ steps.tag.outputs.tag }}.tar.gz -C release-package .
+
+    - name: Upload release package
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./gh-oss-helper-${{ steps.tag.outputs.tag }}.tar.gz
+        asset_name: gh-oss-helper-${{ steps.tag.outputs.tag }}.tar.gz
+        asset_content_type: application/gzip

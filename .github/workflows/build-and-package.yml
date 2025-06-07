@@ -1,0 +1,75 @@
+name: Build and Package
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run tests
+      run: npm test
+
+    - name: Run TypeScript check
+      run: npm run check
+
+    - name: Build action
+      run: npm run build
+
+    - name: Verify build
+      run: |
+        if [ ! -f "dist/index.js" ]; then
+          echo "❌ Build failed: dist/index.js not found"
+          exit 1
+        fi
+        echo "✅ Build successful!"
+        echo "📊 Build output:"
+        ls -la dist/
+
+    # Only commit dist/ on push to main branches (not on PRs)
+    - name: Commit dist
+      if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+
+        # Check if there are changes to commit
+        if [[ -n $(git status --porcelain dist/) ]]; then
+          git add dist/
+          git commit -m "🤖 Auto-build: Update dist/ folder
+
+          Built from commit: ${{ github.sha }}
+          Workflow: ${{ github.workflow }}
+          Run: ${{ github.run_number }}"
+          git push
+          echo "✅ Committed updated dist/ folder"
+        else
+          echo "ℹ️ No changes to dist/ folder"
+        fi
+
+    # For PRs, create build artifact for review
+    - name: Upload build artifact (PR)
+      if: github.event_name == 'pull_request'
+      uses: actions/upload-artifact@v4
+      with:
+        name: built-action
+        path: dist/
+        retention-days: 7

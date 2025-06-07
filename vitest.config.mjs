@@ -14,14 +14,17 @@ export default defineConfig({
         'dist/',
         'lib/',
         '**/*.d.ts',
-        '**/*.config.{js,ts}',
+        '**/*.config.{js,ts,mjs}',
         '**/coverage/**'
       ]
     }
   },
   resolve: {
     alias: {
-      '@': '/src'
+      '@': new URL('./src', import.meta.url).pathname
     }
+  },
+  esbuild: {
+    target: 'node18'
   }
 });

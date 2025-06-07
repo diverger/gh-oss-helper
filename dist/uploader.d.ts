@@ -45,4 +45,3 @@ export declare class OSSUploader {
      */
     testConnection(): Promise<boolean>;
 }
-//# sourceMappingURL=uploader.d.ts.map
