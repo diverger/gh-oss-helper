@@ -21,7 +21,6 @@ on:
       - 'vitest.config.mjs'
       - 'eslint.config.mjs'
       - 'action.yml'
-      - 'build.sh'
       - '!.github/workflows/**'
       - '!**/*.md'
   workflow_dispatch:
