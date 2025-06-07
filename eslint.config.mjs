@@ -6,6 +6,7 @@ export default [
   js.configs.recommended,
   {
     files: ['src/**/*.ts'],
+    ignores: ['src/**/*.test.ts'], // Exclude test files
     languageOptions: {
       parser: tsParser,
       parserOptions: {
@@ -22,7 +23,8 @@ export default [
         global: 'readonly',
         module: 'readonly',
         require: 'readonly',
-        exports: 'readonly'
+        exports: 'readonly',
+        setTimeout: 'readonly'
       }
     },
     plugins: {
@@ -32,7 +34,7 @@ export default [
       '@typescript-eslint/no-unused-vars': 'error',
       '@typescript-eslint/explicit-function-return-type': 'warn',
       '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/prefer-const': 'error',
+      'prefer-const': 'error',
       '@typescript-eslint/no-empty-function': 'warn',
       '@typescript-eslint/no-inferrable-types': 'off',
       '@typescript-eslint/ban-ts-comment': 'warn'

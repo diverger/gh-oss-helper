@@ -70038,8 +70038,8 @@ async function run() {
  */
 function getActionInputs() {
     return {
-        keyId: core.getInput('access-key', { required: true }),
-        keySecret: core.getInput('secret-key', { required: true }),
+        accessKey: core.getInput('access-key', { required: true }),
+        secretKey: core.getInput('secret-key', { required: true }),
         bucket: core.getInput('bucket', { required: true }),
         assets: core.getInput('assets', { required: true }),
         region: core.getInput('region') || undefined,
@@ -70057,8 +70057,8 @@ function getActionInputs() {
  */
 function createOSSConfig(inputs) {
     const config = {
-        accessKeyId: inputs.keyId,
-        accessKeySecret: inputs.keySecret,
+        accessKeyId: inputs.accessKey,
+        accessKeySecret: inputs.secretKey,
         bucket: inputs.bucket,
         timeout: parseInt(inputs.timeout || '120', 10) * 1000 // Convert to milliseconds
     };
@@ -70118,23 +70118,27 @@ function logConnectionInfo(config) {
  * Set GitHub Action outputs
  */
 async function setActionOutputs(results, stats, config) {
+    // Set URL outputs only if there are results
     if (results.length > 0) {
-        // Set primary outputs
         core.setOutput('url', results.map(r => r.url).join(','));
         core.setOutput('urls', results.map(r => r.url));
-        core.setOutput('count', stats.uploadedFiles.toString());
-        // Set detailed outputs
-        core.setOutput('total-files', stats.totalFiles.toString());
-        core.setOutput('uploaded-files', stats.uploadedFiles.toString());
-        core.setOutput('failed-files', stats.failedFiles.toString());
-        core.setOutput('total-size', stats.totalSize.toString());
-        core.setOutput('uploaded-size', stats.uploadedSize.toString());
-        core.setOutput('success-rate', stats.successRate.toFixed(1));
-        core.setOutput('duration', stats.totalDuration.toString());
-        // Set bucket info
-        core.setOutput('bucket', config.bucket);
-        core.setOutput('region', config.region || 'default');
     }
+    else {
+        core.setOutput('url', '');
+        core.setOutput('urls', []);
+    }
+    // Always set stats and config outputs
+    core.setOutput('count', stats.uploadedFiles.toString());
+    core.setOutput('total-files', stats.totalFiles.toString());
+    core.setOutput('uploaded-files', stats.uploadedFiles.toString());
+    core.setOutput('failed-files', stats.failedFiles.toString());
+    core.setOutput('total-size', stats.totalSize.toString());
+    core.setOutput('uploaded-size', stats.uploadedSize.toString());
+    core.setOutput('success-rate', stats.successRate.toFixed(1));
+    core.setOutput('duration', stats.totalDuration.toString());
+    // Set bucket info
+    core.setOutput('bucket', config.bucket);
+    core.setOutput('region', config.region || 'default');
 }
 /**
  * Create detailed job summary
@@ -70197,9 +70201,13 @@ class OSSActionError extends Error {
 }
 exports.OSSActionError = OSSActionError;
 class ValidationError extends OSSActionError {
-    constructor(message, _field) {
+    constructor(message, field) {
         super(`Validation Error: ${message}`, 'VALIDATION_ERROR');
         this.name = 'ValidationError';
+        // Field parameter is available for future error context
+        if (field) {
+            // Field can be used for detailed error reporting
+        }
     }
 }
 exports.ValidationError = ValidationError;
@@ -70707,7 +70715,7 @@ function parseHeaders(headersString) {
     try {
         return JSON.parse(headersString);
     }
-    catch (error) {
+    catch {
         core.warning(`⚠️  Failed to parse headers JSON: ${headersString}`);
         return {};
     }

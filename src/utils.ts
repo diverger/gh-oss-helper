@@ -147,7 +147,7 @@ export function parseHeaders(headersString?: string): Record<string, string> {
   
   try {
     return JSON.parse(headersString);
-  } catch (error) {
+  } catch {
     core.warning(`⚠️  Failed to parse headers JSON: ${headersString}`);
     return {};
   }

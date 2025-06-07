@@ -31,8 +31,8 @@ export interface UploadStats {
     successRate: number;
 }
 export interface ActionInputs {
-    keyId: string;
-    keySecret: string;
+    accessKey: string;
+    secretKey: string;
     bucket: string;
     assets: string;
     region?: string | undefined;
@@ -65,7 +65,7 @@ export declare class OSSActionError extends Error {
     constructor(message: string, code?: string | undefined, statusCode?: number | undefined, filePath?: string | undefined);
 }
 export declare class ValidationError extends OSSActionError {
-    constructor(message: string, _field?: string);
+    constructor(message: string, field?: string);
 }
 export declare class NetworkError extends OSSActionError {
     constructor(message: string, statusCode?: number);

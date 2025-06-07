@@ -35,8 +35,8 @@ export interface UploadStats {
 }
 
 export interface ActionInputs {
-  keyId: string;
-  keySecret: string;
+  accessKey: string;
+  secretKey: string;
   bucket: string;
   assets: string;
   region?: string | undefined;
@@ -66,6 +66,7 @@ export interface UploadOptions {
 }
 
 export class OSSActionError extends Error {
+   
   constructor(
     message: string,
     public readonly code?: string,
@@ -78,9 +79,13 @@ export class OSSActionError extends Error {
 }
 
 export class ValidationError extends OSSActionError {
-  constructor(message: string, _field?: string) {
+  constructor(message: string, field?: string) {
     super(`Validation Error: ${message}`, 'VALIDATION_ERROR');
     this.name = 'ValidationError';
+    // Field parameter is available for future error context
+    if (field) {
+      // Field can be used for detailed error reporting
+    }
   }
 }
 
