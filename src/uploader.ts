@@ -104,9 +104,22 @@ export class OSSUploader {
       absolute: true
     });
 
+    // Check if this is a specific file path that doesn't exist
+    // (as opposed to a glob pattern that legitimately finds no files)
+    const isSpecificFile = !rule.source.includes('*') && !rule.source.includes('?') && !rule.source.includes('[');
+    
     if (files.length === 0) {
-      logWarning(`No files found matching pattern: ${rule.source}`);
-      return [];
+      if (isSpecificFile) {
+        // This is a specific file that doesn't exist - count as a failure
+        logError(`File not found: ${rule.source}`);
+        this.stats.totalFiles += 1;
+        this.stats.failedFiles += 1;
+        return [];
+      } else {
+        // This is a glob pattern that found no files - not an error
+        logWarning(`No files found matching pattern: ${rule.source}`);
+        return [];
+      }
     }
 
     this.stats.totalFiles += files.length;

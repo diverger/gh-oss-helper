@@ -174,10 +174,10 @@ async function setActionOutputs(results: UploadResult[], stats: UploadStats, con
   // Set URL outputs only if there are results
   if (results.length > 0) {
     core.setOutput('url', results.map(r => r.url).join(','));
-    core.setOutput('urls', results.map(r => r.url));
+    core.setOutput('urls', JSON.stringify(results.map(r => r.url)));
   } else {
     core.setOutput('url', '');
-    core.setOutput('urls', []);
+    core.setOutput('urls', JSON.stringify([]));
   }
 
   // Always set stats and config outputs
