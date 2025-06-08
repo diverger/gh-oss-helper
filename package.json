@@ -1,6 +1,5 @@
 {
-  "name": "gh    "test:action": "vitest run src/action.integration.test.ts",
-    "test:watch": "vitest",s-helper",
+  "name": "gh-oss-helper",
   "version": "1.0.0",
   "description": "A modern TypeScript GitHub Action for uploading assets to Alibaba Cloud OSS with advanced retry logic and comprehensive error handling",
   "main": "dist/index.js",

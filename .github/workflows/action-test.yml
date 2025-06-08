@@ -255,8 +255,8 @@ jobs:
       id: real-upload
       uses: ./
       with:
-        access-key: ${{ secrets.OSS_ACCESS_KEY_ID }}
-        secret-key: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
+        access-key: ${{ secrets.OSS_ACCESS_KEY }}
+        secret-key: ${{ secrets.OSS_SECRET_KEY }}
         bucket: ${{ secrets.OSS_BUCKET }}
         region: ${{ secrets.OSS_REGION }}
         assets: |
