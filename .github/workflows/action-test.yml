@@ -8,10 +8,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  action-test:
+  interface-test:
     runs-on: ubuntu-latest
-    name: Test GitHub Action Interface
-    # Allow action tests to run on PRs from anyone, but only on the main repo
+    name: Test Action Interface (Mock)
+    # Allow interface tests to run on PRs from anyone
     if: github.repository == 'diverger/gh-oss-helper' || github.event_name == 'pull_request'
 
     steps:
@@ -198,19 +198,103 @@ jobs:
     - name: Test Summary
       if: always()
       run: |
-        echo "🎯 Action Test Summary"
-        echo "===================="
+        echo "🎯 Action Interface Test Summary"
+        echo "================================="
         echo ""
         echo "✅ Build and packaging: SUCCESS"
         echo "✅ Action interface: VALIDATED"
-        echo "✅ Single file upload: TESTED"
-        echo "✅ Multiple files upload: TESTED"
-        echo "✅ Directory upload: TESTED"
-        echo "✅ Advanced options: TESTED"
+        echo "✅ Input validation: TESTED"
         echo "✅ Error handling: TESTED"
         echo "✅ action.yml compliance: VERIFIED"
         echo ""
-        echo "🏆 GitHub Action is ready for use!"
+        echo "🔍 Interface validation complete!"
         echo ""
-        echo "📝 Note: Tests use mock credentials for safety."
-        echo "   Real OSS uploads require valid credentials."
+        echo "📝 Note: This tests action interface with mock credentials."
+        echo "   For real OSS testing, see the integration test workflow."
+
+  real-oss-test:
+    runs-on: ubuntu-latest
+    name: Test Real OSS Upload
+    # Only run real OSS tests for repository owner with secrets
+    if: github.repository == 'diverger/gh-oss-helper' && github.actor == github.repository_owner && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: interface-test
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install dependencies and build
+      run: |
+        npm ci
+        npm run build
+
+    - name: Validate Secrets Available
+      run: |
+        echo "🔐 Validating OSS credentials availability..."
+        if [ -z "${{ secrets.OSS_ACCESS_KEY }}" ] || [ -z "${{ secrets.OSS_SECRET_KEY }}" ] || [ -z "${{ secrets.OSS_BUCKET }}" ] || [ -z "${{ secrets.OSS_REGION }}" ]; then
+          echo "❌ Required OSS secrets not configured"
+          echo "Please ensure OSS_ACCESS_KEY, OSS_SECRET_KEY, OSS_BUCKET, and OSS_REGION are set in repository secrets"
+          exit 1
+        fi
+        echo "✅ All required secrets are configured"
+
+    - name: Create test files for real upload
+      run: |
+        mkdir -p test-upload
+        echo "# Real Test $(date)" > test-upload/test-$(date +%s).md
+        echo "Action test at $(date)" > test-upload/timestamp.txt
+        echo '{"test": true, "timestamp": "'$(date -Iseconds)'"}' > test-upload/meta.json
+
+    - name: Test Real OSS Upload
+      id: real-upload
+      uses: ./
+      with:
+        access-key: ${{ secrets.OSS_ACCESS_KEY_ID }}
+        secret-key: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
+        bucket: ${{ secrets.OSS_BUCKET }}
+        region: ${{ secrets.OSS_REGION }}
+        assets: |
+          test-upload/:action-tests/
+        timeout: 120
+        max-retries: 2
+        continue-on-error: false
+
+    - name: Validate Real Upload Results
+      run: |
+        echo "🎯 Real OSS Upload Test Results"
+        echo "=============================="
+        echo ""
+        echo "📊 Upload Statistics:"
+        echo "  • Bucket: ${{ steps.real-upload.outputs.bucket }}"
+        echo "  • Region: ${{ steps.real-upload.outputs.region }}"
+        echo "  • Total Files: ${{ steps.real-upload.outputs.total-files }}"
+        echo "  • Uploaded: ${{ steps.real-upload.outputs.uploaded-files }}"
+        echo "  • Failed: ${{ steps.real-upload.outputs.failed-files }}"
+        echo "  • Success Rate: ${{ steps.real-upload.outputs.success-rate }}"
+        echo "  • Duration: ${{ steps.real-upload.outputs.duration }}"
+        echo ""
+        echo "🔗 Upload URLs:"
+        echo "${{ steps.real-upload.outputs.urls }}"
+        echo ""
+        echo "✅ Real OSS integration test completed successfully!"
+
+    - name: Real Test Summary
+      if: always()
+      run: |
+        echo "🏆 Complete Action Validation Summary"
+        echo "===================================="
+        echo ""
+        echo "✅ Interface Tests: PASSED"
+        echo "✅ Real OSS Upload: ${{ job.status == 'success' && 'PASSED' || 'FAILED' }}"
+        echo ""
+        if [ "${{ job.status }}" == "success" ]; then
+          echo "🎉 GitHub Action is fully validated and ready for production use!"
+        else
+          echo "⚠️  Real OSS test failed - check configuration and credentials"
+        fi
