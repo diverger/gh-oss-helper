@@ -237,7 +237,7 @@ npm run check
 - **Matrix:** Node.js 18 and 20
 - **Coverage:** Generates coverage reports
 
-#### **2. Integration Testing** (`test-action.yml`)
+#### **2. Action Testing** (`action-test.yml`)
 - **Triggers:** Manual dispatch with options
 - **Test Types:**
   - `dry-run` - Test with fake credentials (safe)
