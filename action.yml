@@ -1,6 +1,6 @@
 
 name: 'GH OSS Helper'
-description: 'A modern TypeScript GitHub Action for uploading assets to Alibaba Cloud OSS with advanced retry logic and comprehensive error handling'
+description: 'TypeScript GitHub Action for uploading assets to Alibaba Cloud OSS'
 branding:
   icon: 'upload-cloud'
   color: 'blue'
