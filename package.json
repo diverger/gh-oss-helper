@@ -1,6 +1,6 @@
 {
   "name": "gh-oss-helper",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A modern TypeScript GitHub Action for uploading assets to Alibaba Cloud OSS with advanced retry logic and comprehensive error handling",
   "main": "dist/index.js",
   "scripts": {
