@@ -232,7 +232,9 @@ describe('OSSUploader Integration Tests', () => {
 
       expect(results).toHaveLength(0); // No successful uploads
       const stats = uploader.getStats();
-      expect(stats.totalFiles).toBe(0); // No files found to upload
+      expect(stats.totalFiles).toBe(1); // One file was attempted but failed
+      expect(stats.failedFiles).toBe(1); // The non-existent file counts as a failure
+      expect(stats.uploadedFiles).toBe(0); // No files were successfully uploaded
     });
 
     it('should handle permission errors during file reading', async () => {
