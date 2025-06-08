@@ -98,7 +98,15 @@ export class OSSUploader {
   private async processRule(rule: UploadRule, options: UploadOptions): Promise<UploadResult[]> {
     logOperation(`Processing rule`, `${rule.source} → ${rule.destination}`);
 
-    const files = fg.sync([rule.source], {
+    // For directory uploads, ensure source pattern includes glob to find all files
+    let sourcePattern = rule.source;
+    if (rule.isDirectory && !sourcePattern.includes('*') && !sourcePattern.includes('?') && !sourcePattern.includes('[')) {
+      // If it's a directory upload but source doesn't have glob patterns, add them
+      sourcePattern = sourcePattern.endsWith('/') ? `${sourcePattern}**/*` : `${sourcePattern}/**/*`;
+      logOperation(`Converted directory pattern`, `${rule.source} → ${sourcePattern}`);
+    }
+
+    const files = fg.sync([sourcePattern], {
       dot: false,
       onlyFiles: true,
       absolute: true
@@ -106,7 +114,7 @@ export class OSSUploader {
 
     // Check if this is a specific file path that doesn't exist
     // (as opposed to a glob pattern that legitimately finds no files)
-    const isSpecificFile = !rule.source.includes('*') && !rule.source.includes('?') && !rule.source.includes('[');
+    const isSpecificFile = !sourcePattern.includes('*') && !sourcePattern.includes('?') && !sourcePattern.includes('[');
 
     if (files.length === 0) {
       if (isSpecificFile) {
@@ -117,7 +125,7 @@ export class OSSUploader {
         return [];
       } else {
         // This is a glob pattern that found no files - not an error
-        logWarning(`No files found matching pattern: ${rule.source}`);
+        logWarning(`No files found matching pattern: ${sourcePattern}`);
         return [];
       }
     }
@@ -138,6 +146,7 @@ export class OSSUploader {
     } else {
       // Directory upload - process files sequentially
       for (const file of files) {
+        // Use original rule.source for relative path extraction, not the modified sourcePattern
         const relativePath = extractRelativePath(file, rule.source);
         const remotePath = sanitizeRemotePath(`${rule.destination}${relativePath}`);
 

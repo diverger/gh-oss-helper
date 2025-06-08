@@ -63,7 +63,7 @@ jobs:
         bucket: 'test-bucket'
         region: 'oss-cn-hangzhou'
         assets: |
-          test-files/README.md:uploads/readme.md
+          test-files/README.md:gh-oss-helper/uploads/readme.md
         timeout: 60
         continue-on-error: true
 
@@ -76,9 +76,9 @@ jobs:
         bucket: 'test-bucket'
         region: 'oss-cn-hangzhou'
         assets: |
-          test-files/README.md:docs/readme.md
-          test-files/docs/guide.md:docs/guide.md
-          test-files/config/app.json:config/application.json
+          test-files/README.md:gh-oss-helper/docs/readme.md
+          test-files/docs/guide.md:gh-oss-helper/docs/guide.md
+          test-files/config/app.json:gh-oss-helper/config/application.json
         timeout: 120
         max-retries: 2
         continue-on-error: true
@@ -92,7 +92,7 @@ jobs:
         bucket: 'test-bucket'
         region: 'oss-cn-hangzhou'
         assets: |
-          test-files/:website/
+          test-files/:gh-oss-helper/website/
         timeout: 180
         continue-on-error: true
 
@@ -105,8 +105,8 @@ jobs:
         bucket: 'test-bucket'
         region: 'oss-cn-hangzhou'
         assets: |
-          test-files/medium.bin:files/medium.bin
-          test-files/large.bin:files/large.bin
+          test-files/medium.bin:gh-oss-helper/files/medium.bin
+          test-files/large.bin:gh-oss-helper/files/large.bin
         enable-gzip: true
         public-read: true
         headers: '{"Cache-Control":"max-age=3600","Content-Type":"application/octet-stream"}'
@@ -246,10 +246,40 @@ jobs:
 
     - name: Create test files for real upload
       run: |
+        echo "📁 Creating test files for real OSS upload..."
         mkdir -p test-upload
-        echo "# Real Test $(date)" > test-upload/test-$(date +%s).md
+
+        # Create test files with timestamp
+        TIMESTAMP=$(date +%s)
+        echo "# Real Test $(date)" > test-upload/test-${TIMESTAMP}.md
         echo "Action test at $(date)" > test-upload/timestamp.txt
         echo '{"test": true, "timestamp": "'$(date -Iseconds)'"}' > test-upload/meta.json
+        echo "Hello from GitHub Actions!" > test-upload/hello.txt
+
+        # Verify files were created
+        echo "📋 Verifying test files creation:"
+        ls -la test-upload/
+        echo ""
+        echo "📊 File count: $(find test-upload -type f | wc -l)"
+        echo "📂 Working directory: $(pwd)"
+        echo "✅ Test files created successfully"
+
+    - name: Pre-upload verification
+      run: |
+        echo "🔍 Pre-upload verification:"
+        echo "📂 Working directory: $(pwd)"
+        echo "📁 Contents of current directory:"
+        ls -la
+        echo ""
+        if [ -d "test-upload" ]; then
+          echo "✅ test-upload directory exists"
+          echo "📋 Files in test-upload:"
+          ls -la test-upload/
+          echo "📊 File count: $(find test-upload -type f | wc -l)"
+        else
+          echo "❌ test-upload directory not found!"
+          exit 1
+        fi
 
     - name: Test Real OSS Upload
       id: real-upload
@@ -260,7 +290,7 @@ jobs:
         bucket: ${{ secrets.OSS_BUCKET }}
         region: ${{ secrets.OSS_REGION }}
         assets: |
-          test-upload/:action-tests/
+          test-upload/:gh-oss-helper/action-tests/
         timeout: 120
         max-retries: 2
         continue-on-error: false
