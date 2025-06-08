@@ -46,7 +46,7 @@ export declare function sanitizeRemotePath(path: string): string;
  */
 export declare function delay(ms: number): Promise<void>;
 /**
- * Extracts filename from glob pattern base
+ * Extracts relative path from a file path based on glob pattern
  */
 export declare function extractRelativePath(filePath: string, basePath: string): string;
 /**

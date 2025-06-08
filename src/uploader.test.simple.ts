@@ -28,7 +28,8 @@ describe('OSSUploader - Basic Tests', () => {
       region: 'test-region',
       accessKeyId: 'test-key',
       accessKeySecret: 'test-secret',
-      bucket: 'test-bucket'
+      bucket: 'test-bucket',
+      timeout: 600000
     };
 
     retryConfig = {
@@ -48,17 +49,20 @@ describe('OSSUploader - Basic Tests', () => {
   it('should have default stats', () => {
     const stats = uploader.getStats();
     expect(stats.totalFiles).toBe(0);
-    expect(stats.successfulUploads).toBe(0);
-    expect(stats.failedUploads).toBe(0);
+    expect(stats.uploadedFiles).toBe(0);
+    expect(stats.failedFiles).toBe(0);
     expect(stats.totalSize).toBe(0);
-    expect(stats.duration).toBe(0);
+    expect(stats.totalDuration).toBe(0);
   });
 
-  it('should reset stats', () => {
-    uploader.resetStats();
-    const stats = uploader.getStats();
-    expect(stats.totalFiles).toBe(0);
-    expect(stats.successfulUploads).toBe(0);
-    expect(stats.failedUploads).toBe(0);
+  it('should return a copy of stats to prevent mutation', () => {
+    const stats1 = uploader.getStats();
+    const stats2 = uploader.getStats();
+    
+    expect(stats1).not.toBe(stats2); // Different object references
+    expect(stats1).toEqual(stats2); // Same values
+    expect(stats1.totalFiles).toBe(0);
+    expect(stats1.uploadedFiles).toBe(0);
+    expect(stats1.failedFiles).toBe(0);
   });
 });
