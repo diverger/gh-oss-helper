@@ -70112,7 +70112,7 @@ function logConnectionInfo(config) {
         core.info(`🌍 Region: ${config.region}`);
     if (config.endpoint)
         core.info(`🔗 Endpoint: ${config.endpoint}`);
-    core.info(`⏱️  Timeout: ${config.timeout / 1000}s`);
+    core.info(`⏱️ Timeout: ${config.timeout / 1000}s`);
 }
 /**
  * Set GitHub Action outputs
