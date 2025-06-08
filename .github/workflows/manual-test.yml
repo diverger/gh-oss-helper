@@ -1,4 +1,4 @@
-name: Test OSS Helper
+name: Manual Test
 
 on:
   workflow_dispatch:
