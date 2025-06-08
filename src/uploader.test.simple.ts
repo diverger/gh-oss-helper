@@ -58,7 +58,7 @@ describe('OSSUploader - Basic Tests', () => {
   it('should return a copy of stats to prevent mutation', () => {
     const stats1 = uploader.getStats();
     const stats2 = uploader.getStats();
-    
+
     expect(stats1).not.toBe(stats2); // Different object references
     expect(stats1).toEqual(stats2); // Same values
     expect(stats1.totalFiles).toBe(0);
