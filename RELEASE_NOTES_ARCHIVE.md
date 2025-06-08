@@ -4,6 +4,20 @@ This file contains archived release notes for older versions of GH OSS Helper.
 
 ---
 
+
+## 🔧 Changes
+- Fixes issue with release workflow
+
+## 🔗 Full Changelog
+
+**Full Changelog**: https://github.com/your-username/gh-oss-helper/compare/v1.0.0...v1.0.1
+
+---
+
+*For older releases, see [RELEASE_NOTES_ARCHIVE.md](RELEASE_NOTES_ARCHIVE.md)*
+
+---
+
 ## ✨ What's New
 
 - **Complete GitHub Action for Alibaba Cloud OSS uploads** with TypeScript implementation

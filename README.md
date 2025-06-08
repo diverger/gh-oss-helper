@@ -219,113 +219,12 @@ jobs:
             README.md:documentation/index.md
 ```
 
-## 🛠️ Development
-
-### Prerequisites
-
-- Node.js 18+
-- npm or yarn
-
-### Setup
-
-```bash
-# Clone the repository
-git clone https://github.com/diverger/gh-oss-helper.git
-cd gh-oss-helper
-
-# Install dependencies
-npm install
-
-# Run tests
-npm test
-
-# Build the action
-npm run build
-```
-
-### Scripts
-
-- `npm run build` - Build TypeScript and bundle with ncc
-- `npm run dev` - Watch mode for development
-- `npm test` - Run test suite
-- `npm run test:watch` - Run tests in watch mode
-- `npm run test:coverage` - Run tests with coverage
-- `npm run lint` - Run ESLint
-- `npm run lint:fix` - Fix ESLint issues
-
-### Project Structure
-
-```
-gh-oss-helper/
-├── src/                    # TypeScript source code
-│   ├── index.ts           # Main action entry point
-│   ├── uploader.ts        # OSS upload logic
-│   ├── utils.ts           # Utility functions
-│   ├── types.ts           # TypeScript type definitions
-│   └── *.test.ts          # Test files
-├── lib/                    # Compiled JavaScript
-├── dist/                   # Bundled action (for GitHub)
-├── action.yml             # Action metadata
-├── package.json           # Dependencies and scripts
-├── tsconfig.json          # TypeScript configuration
-├── vitest.config.ts       # Test configuration
-└── eslint.config.mjs      # ESLint configuration
-```
-
 ## 🔍 Troubleshooting
-
-### Common Issues
-
-**TimeoutError during uploads**
-- Increase the `timeout` value
-- Check your network connection
-- Verify OSS endpoint accessibility
-
-**Authentication failures**
-- Verify your Access Key ID and Secret
-- Check bucket permissions
-- Ensure the region is correct
-
-**File not found errors**
-- Verify source paths in assets configuration
-- Check if files exist in the repository
-- Ensure glob patterns are correct
 
 ### Debug Mode
 
 Enable debug logging by setting the `ACTIONS_STEP_DEBUG` secret to `true` in your repository.
 
-## 📊 Performance
-
-This action is optimized for reliability and performance:
-
-- **Sequential Processing**: Prevents overwhelming OSS with concurrent requests
-- **Exponential Backoff**: Smart retry logic for transient failures
-- **Memory Efficient**: Streams files without loading into memory
-- **Progress Tracking**: Real-time upload progress and statistics
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature-name`
-3. Make your changes and add tests
-4. Ensure tests pass: `npm test`
-5. Commit your changes: `git commit -am 'Add feature'`
-6. Push to the branch: `git push origin feature-name`
-7. Submit a pull request
-
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- Built with [ali-oss](https://github.com/ali-sdk/ali-oss) SDK
-- Powered by [GitHub Actions](https://github.com/features/actions)
-- TypeScript tooling by [Vitest](https://vitest.dev/) and [ESLint](https://eslint.org/)
-
-## 📞 Support
-
-- 📖 [Documentation](https://github.com/diverger/gh-oss-helper/wiki)
-- 🐛 [Issues](https://github.com/diverger/gh-oss-helper/issues)
-- 💬 [Discussions](https://github.com/diverger/gh-oss-helper/discussions)
