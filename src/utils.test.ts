@@ -102,13 +102,25 @@ describe('Utils', () => {
   });
 
   describe('extractRelativePath', () => {
-    it('should extract relative paths correctly', () => {
-      expect(extractRelativePath('/home/user/project/src/file.js', '/home/user/project/src/'))
-        .toBe('file.js');
-      expect(extractRelativePath('/project/dist/app.js', '/project/dist/'))
-        .toBe('app.js');
-      expect(extractRelativePath('/project/src/components/Button.tsx', '/project/src/'))
+    it('should extract relative paths correctly from glob patterns', () => {
+      expect(extractRelativePath('/home/user/project/src/file.js', '/home/user/project/**/*'))
+        .toBe('src/file.js');
+      expect(extractRelativePath('/project/dist/app.js', '/project/**/*'))
+        .toBe('dist/app.js');
+      expect(extractRelativePath('/project/src/components/Button.tsx', '/project/src/**/*'))
         .toBe('components/Button.tsx');
+    });
+
+    it('should handle nested directory structures', () => {
+      expect(extractRelativePath('/temp/subdir/nested.txt', '/temp/**/*.txt'))
+        .toBe('subdir/nested.txt');
+      expect(extractRelativePath('/temp/root.txt', '/temp/**/*.txt'))
+        .toBe('root.txt');
+    });
+
+    it('should handle fallback to filename when path does not match', () => {
+      expect(extractRelativePath('/different/path/file.js', '/project/**/*'))
+        .toBe('file.js');
     });
   });
 

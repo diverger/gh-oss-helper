@@ -34,11 +34,11 @@ jobs:
       run: npm run check
 
     - name: Run unit tests
-      run: npm test
+      run: npm run test:unit
 
-    - name: Run tests with coverage
+    - name: Run unit test coverage
       if: matrix.node-version == 20
-      run: npm run test:coverage
+      run: npm run test:coverage:unit
 
     - name: Build action
       run: npm run build

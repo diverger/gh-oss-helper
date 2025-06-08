@@ -9,6 +9,7 @@ lib/
 coverage/
 
 # Temporary files
+coverage_output.txt
 *.tmp
 *.log
 RELEASE_NOTES_backup_*

@@ -170,11 +170,21 @@ export function delay(ms: number): Promise<void> {
 }
 
 /**
- * Extracts filename from glob pattern base
+ * Extracts relative path from a file path based on glob pattern
  */
 export function extractRelativePath(filePath: string, basePath: string): string {
-  const base = basePath.replace(/\*+$/g, '');
-  return filePath.replace(base, '');
+  // Remove glob patterns and normalize the base path
+  const base = basePath.replace(/\*+.*$/g, '').replace(/\/$/, '');
+
+  // If the file path starts with the base, extract the relative part
+  if (filePath.startsWith(base)) {
+    const relativePath = filePath.substring(base.length);
+    // Remove leading slash if present
+    return relativePath.startsWith('/') ? relativePath.substring(1) : relativePath;
+  }
+
+  // Fallback: just return the filename
+  return filePath.split('/').pop() || filePath;
 }
 
 /**
