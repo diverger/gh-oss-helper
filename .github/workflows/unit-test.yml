@@ -10,6 +10,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    # Allow tests to run on PRs from anyone, but only on the main repo
+    if: github.repository == 'diverger/gh-oss-helper' || github.event_name == 'pull_request'
     strategy:
       matrix:
         node-version: [18, 20]

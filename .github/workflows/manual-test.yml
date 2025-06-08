@@ -31,13 +31,31 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    # Allow manual tests on the main repo, restrict access to secrets for non-owners
+    if: github.repository == 'diverger/gh-oss-helper'
     env:
       # Set fallback values using environment variables
       OSS_REGION: ${{ inputs.region != '' && inputs.region || secrets.OSS_REGION || 'oss-cn-beijing' }}
       OSS_BUCKET: ${{ inputs.bucket != '' && inputs.bucket || secrets.OSS_BUCKET || 'test-bucket' }}
-      OSS_ACCESS_KEY: ${{ secrets.OSS_ACCESS_KEY || 'test-key' }}
-      OSS_SECRET_KEY: ${{ secrets.OSS_SECRET_KEY || 'test-secret' }}
+      # Only use real secrets for repository owner/collaborators, fallback to test values for others
+      OSS_ACCESS_KEY: ${{ (github.actor == github.repository_owner || github.event_name != 'workflow_dispatch') && secrets.OSS_ACCESS_KEY || 'test-key' }}
+      OSS_SECRET_KEY: ${{ (github.actor == github.repository_owner || github.event_name != 'workflow_dispatch') && secrets.OSS_SECRET_KEY || 'test-secret' }}
     steps:
+    - name: Security Notice
+      run: |
+        echo "🔒 Security Notice:"
+        echo "- This workflow is accessible to all contributors"
+        echo "- Real OSS credentials are only available to repository owner"
+        echo "- Non-owners will use test/mock credentials for dry-run testing"
+        echo "- Actor: ${{ github.actor }}"
+        echo "- Repository Owner: ${{ github.repository_owner }}"
+        if [ "${{ github.actor }}" = "${{ github.repository_owner }}" ]; then
+          echo "✅ Full access granted - real credentials available"
+        else
+          echo "⚠️  Limited access - using test credentials for dry-run"
+        fi
+        echo ""
+
     - name: Checkout
       uses: actions/checkout@v4
 

@@ -28,6 +28,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Allow builds to run on PRs from anyone, but only on the main repo
+    if: github.repository == 'diverger/gh-oss-helper' || github.event_name == 'pull_request'
     steps:
     - name: Checkout
       uses: actions/checkout@v4
