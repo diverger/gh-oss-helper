@@ -164,7 +164,7 @@ function logConnectionInfo(config: OSSConfig): void {
   core.info(`📦 Connecting to OSS bucket: ${config.bucket}`);
   if (config.region) core.info(`🌍 Region: ${config.region}`);
   if (config.endpoint) core.info(`🔗 Endpoint: ${config.endpoint}`);
-  core.info(`⏱️  Timeout: ${config.timeout / 1000}s`);
+  core.info(`⏱️ Timeout: ${config.timeout / 1000}s`);
 }
 
 /**
