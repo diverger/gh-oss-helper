@@ -27,6 +27,11 @@ on:
         description: 'Custom assets (optional, for advanced testing)'
         required: false
         default: ''
+      enable_debug:
+        description: 'Enable debug logging (ACTIONS_STEP_DEBUG)'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   test:
@@ -34,6 +39,8 @@ jobs:
     # Allow manual tests on the main repo, restrict access to secrets for non-owners
     if: github.repository == 'diverger/gh-oss-helper'
     env:
+      # Enable debug logging conditionally for all steps
+      ACTIONS_STEP_DEBUG: ${{ inputs.enable_debug }}
       # Set fallback values using environment variables
       OSS_REGION: ${{ inputs.region != '' && inputs.region || secrets.OSS_REGION || 'oss-cn-beijing' }}
       OSS_BUCKET: ${{ inputs.bucket != '' && inputs.bucket || secrets.OSS_BUCKET || 'test-bucket' }}
@@ -53,6 +60,9 @@ jobs:
           echo "✅ Full access granted - real credentials available"
         else
           echo "⚠️  Limited access - using test credentials for dry-run"
+        fi
+        if [ "${{ inputs.enable_debug }}" = "true" ]; then
+          echo "🐛 Debug logging enabled (ACTIONS_STEP_DEBUG=true)"
         fi
         echo ""
 
@@ -248,6 +258,10 @@ jobs:
 
         if [ -n "${{ inputs.custom_assets }}" ]; then
           echo "📋 Custom assets: ${{ inputs.custom_assets }}"
+        fi
+
+        if [ "${{ inputs.enable_debug }}" = "true" ]; then
+          echo "🐛 Debug mode was enabled for test steps"
         fi
 
         echo ""
