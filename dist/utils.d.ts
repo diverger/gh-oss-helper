@@ -65,3 +65,11 @@ export declare function logWarning(message: string): void;
  * Logs error with consistent formatting
  */
 export declare function logError(message: string): void;
+/**
+ * Logs debug information (only visible when ACTIONS_STEP_DEBUG=true)
+ */
+export declare function logDebug(message: string, details?: any): void;
+/**
+ * Checks if debug mode is enabled
+ */
+export declare function isDebugEnabled(): boolean;

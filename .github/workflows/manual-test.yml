@@ -140,6 +140,7 @@ jobs:
           test-files/README.md:gh-oss-helper/docs/readme.md
         timeout: 60
         continue-on-error: true
+        enable-debug: ${{ inputs.enable_debug }}
       env:
         # This will fail but test the action logic
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -156,6 +157,7 @@ jobs:
           test-files/README.md:gh-oss-helper/docs/readme.md
         timeout: 120
         continue-on-error: true
+        enable-debug: ${{ inputs.enable_debug }}
 
     - name: Test - Multiple Files
       if: inputs.test_type == 'multiple-files'
@@ -171,6 +173,7 @@ jobs:
           test-files/config/app.json:gh-oss-helper/config/application.json
         timeout: 180
         continue-on-error: true
+        enable-debug: ${{ inputs.enable_debug }}
 
     - name: Test - Directory Upload
       if: inputs.test_type == 'directory-upload'
@@ -184,6 +187,7 @@ jobs:
           test-files/:gh-oss-helper/website/
         timeout: 180
         continue-on-error: true
+        enable-debug: ${{ inputs.enable_debug }}
 
     - name: Test - Advanced Options
       if: inputs.test_type == 'advanced-options'
@@ -202,6 +206,7 @@ jobs:
         public-read: true
         headers: '{"Cache-Control":"max-age=3600","Content-Type":"text/html"}'
         continue-on-error: true
+        enable-debug: ${{ inputs.enable_debug }}
 
     - name: Test - Large File Upload (>1GB)
       if: inputs.test_type == 'large-file-test'
@@ -219,6 +224,7 @@ jobs:
         max-retries: 3
         enable-gzip: false
         continue-on-error: true
+        enable-debug: ${{ inputs.enable_debug }}
 
     - name: Test - Massive File Upload (2.5GB if available)
       if: inputs.test_type == 'large-file-test'
@@ -234,6 +240,7 @@ jobs:
         max-retries: 2
         enable-gzip: false
         continue-on-error: true
+        enable-debug: ${{ inputs.enable_debug }}
       continue-on-error: true
 
     - name: Test - Custom Assets
@@ -247,6 +254,7 @@ jobs:
         assets: ${{ inputs.custom_assets }}
         timeout: 180
         continue-on-error: true
+        enable-debug: ${{ inputs.enable_debug }}
 
     - name: Display Results
       if: always()

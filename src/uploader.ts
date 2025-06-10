@@ -29,7 +29,8 @@ import {
   logOperation,
   logSuccess,
   logWarning,
-  logError
+  logError,
+  logDebug
 } from './utils';
 
 export class OSSUploader {
@@ -97,6 +98,7 @@ export class OSSUploader {
    */
   private async processRule(rule: UploadRule, options: UploadOptions): Promise<UploadResult[]> {
     logOperation(`Processing rule`, `${rule.source} → ${rule.destination}`);
+    logDebug('Processing upload rule', rule);
 
     // For directory uploads, ensure source pattern includes glob to find all files
     let sourcePattern = rule.source;
@@ -104,13 +106,16 @@ export class OSSUploader {
       // If it's a directory upload but source doesn't have glob patterns, add them
       sourcePattern = sourcePattern.endsWith('/') ? `${sourcePattern}**/*` : `${sourcePattern}/**/*`;
       logOperation(`Converted directory pattern`, `${rule.source} → ${sourcePattern}`);
+      logDebug('Directory pattern converted', { original: rule.source, converted: sourcePattern });
     }
 
+    logDebug('Searching for files with pattern', sourcePattern);
     const files = fg.sync([sourcePattern], {
       dot: false,
       onlyFiles: true,
       absolute: true
     });
+    logDebug('Found files', { pattern: sourcePattern, count: files.length, files });
 
     // Check if this is a specific file path that doesn't exist
     // (as opposed to a glob pattern that legitimately finds no files)
@@ -167,8 +172,10 @@ export class OSSUploader {
     options: UploadOptions
   ): Promise<UploadResult | null> {
     try {
+      logDebug('Starting single file upload', { localPath, remotePath });
       const fileStats = await getFileStats(localPath);
       this.stats.totalSize += fileStats.size;
+      logDebug('File stats obtained', { localPath, size: fileStats.size, name: fileStats.name });
 
       const result = await this.uploadWithRetry(
         () => this.performUpload(localPath, remotePath, options),
@@ -203,6 +210,8 @@ export class OSSUploader {
     remotePath: string,
     options: UploadOptions
   ): Promise<UploadResult> {
+    logDebug('Performing OSS upload', { localPath, remotePath, options });
+
     const uploadOptions: Record<string, unknown> = {
       timeout: options.timeout || 600000,
       ...options
@@ -217,12 +226,13 @@ export class OSSUploader {
     }
 
     const response = await this.oss.put(remotePath, resolve(localPath), uploadOptions);
+    logDebug('OSS upload response received', { remotePath, responseStatus: response?.res?.status });
 
     // Handle OSS response structure safely
     const ossResponse = response as unknown as OSSResponse;
     const fileStats = await getFileStats(localPath);
 
-    return {
+    const result = {
       success: true,
       filePath: localPath,
       objectKey: remotePath,
@@ -230,6 +240,9 @@ export class OSSUploader {
       ...(ossResponse.res?.headers?.etag && { etag: ossResponse.res.headers.etag }),
       ...(ossResponse.url && { url: ossResponse.url })
     };
+
+    logDebug('Upload result created', result);
+    return result;
   }
 
   /**
@@ -241,17 +254,20 @@ export class OSSUploader {
     fileStats: { size: number; name: string }
   ): Promise<UploadResult | null> {
     const fileSizeFormatted = formatFileSize(fileStats.size);
+    logDebug('Starting upload with retry', { fileName: fileStats.name, size: fileSizeFormatted, maxRetries: this.retryConfig.maxRetries });
 
     for (let attempt = 0; attempt < this.retryConfig.maxRetries; attempt++) {
       try {
         const retryLabel = attempt > 0 ? ` - Retry ${attempt}` : '';
         logOperation(`⬆️  Uploading ${fileStats.name} (${fileSizeFormatted})${retryLabel}`);
+        logDebug('Upload attempt', { attempt: attempt + 1, fileName: fileStats.name });
 
         const startTime = Date.now();
         const result = await uploadFn();
         const duration = Date.now() - startTime;
 
         logSuccess(`Uploaded ${fileStats.name} in ${formatDuration(duration)}`);
+        logDebug('Upload successful', { fileName: fileStats.name, duration, attempt: attempt + 1 });
         return result;
 
       } catch (error: unknown) {
@@ -259,6 +275,7 @@ export class OSSUploader {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
         logWarning(`Upload failed for ${fileStats.name}: ${errorMessage}`);
+        logDebug('Upload attempt failed', { fileName: fileStats.name, attempt: attempt + 1, error: errorMessage, isLastAttempt });
 
         // Convert to Error for the retry check
         const errorObj = error instanceof Error ? error : new Error(String(error));
@@ -280,6 +297,7 @@ export class OSSUploader {
         );
 
         logOperation(`⏳ Retrying in ${formatDuration(delayMs)}... (attempt ${attempt + 2}/${this.retryConfig.maxRetries})`);
+        logDebug('Retry delay calculated', { delayMs, attempt, fileName: fileStats.name });
         await delay(delayMs);
       }
     }
@@ -359,11 +377,15 @@ export class OSSUploader {
    */
   async testConnection(): Promise<boolean> {
     try {
+      logDebug('Testing OSS connection', { bucket: this.config.bucket, region: this.config.region });
       await this.oss.getBucketInfo(this.config.bucket);
       logSuccess('OSS connection test successful');
+      logDebug('OSS connection test details', { bucket: this.config.bucket, status: 'success' });
       return true;
     } catch (error) {
-      logError(`OSS connection test failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      logError(`OSS connection test failed: ${errorMessage}`);
+      logDebug('OSS connection test failed', { bucket: this.config.bucket, error: errorMessage });
       return false;
     }
   }

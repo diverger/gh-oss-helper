@@ -64,6 +64,7 @@ jobs:
 | `enable-gzip` | ❌ | `false` | Enable gzip compression |
 | `public-read` | ❌ | `false` | Set public-read ACL on uploaded files |
 | `headers` | ❌ | - | Custom headers as JSON string |
+| `enable-debug` | ❌ | `false` | Enable verbose debug logging |
 
 ## 📤 Outputs
 
@@ -223,7 +224,29 @@ jobs:
 
 ### Debug Mode
 
-Enable debug logging by setting the `ACTIONS_STEP_DEBUG` secret to `true` in your repository.
+Enable detailed debug logging in two ways:
+
+1. **Action input**: Set `enable-debug: true` in your workflow
+2. **Repository secret**: Set `ACTIONS_STEP_DEBUG` to `true` in your repository secrets
+
+Debug mode provides detailed information about:
+- Configuration parsing and validation
+- File discovery and processing
+- Upload progress and retry attempts
+- OSS API responses and errors
+- Timing and performance metrics
+
+#### Example with debug enabled:
+
+```yaml
+- name: Upload with debug logging
+  uses: diverger/gh-oss-helper@v1
+  with:
+    # ... other inputs
+    enable-debug: true
+```
+
+**Note**: Debug output is only visible in the "Raw logs" view in GitHub Actions.
 
 ## 📄 License
 

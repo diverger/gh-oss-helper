@@ -69987,16 +69987,28 @@ async function run() {
     const startTime = Date.now();
     try {
         core.info('🚀 Starting OSS upload process...');
+        if ((0, utils_1.isDebugEnabled)()) {
+            (0, utils_1.logDebug)('Debug mode enabled');
+        }
         // Get and validate inputs
         const inputs = getActionInputs();
+        (0, utils_1.logDebug)('Raw action inputs', inputs);
         (0, utils_1.validateInputs)(inputs);
         // Create OSS configuration
         const ossConfig = createOSSConfig(inputs);
+        (0, utils_1.logDebug)('OSS configuration created', {
+            bucket: ossConfig.bucket,
+            region: ossConfig.region,
+            endpoint: ossConfig.endpoint,
+            timeout: ossConfig.timeout
+        });
         logConnectionInfo(ossConfig);
         // Create retry configuration
         const retryConfig = createRetryConfig(inputs);
+        (0, utils_1.logDebug)('Retry configuration', retryConfig);
         // Create upload options
         const uploadOptions = createUploadOptions(inputs);
+        (0, utils_1.logDebug)('Upload options', uploadOptions);
         // Initialize uploader
         const uploader = new uploader_1.OSSUploader(ossConfig, retryConfig);
         // Test connection (optional)
@@ -70006,6 +70018,7 @@ async function run() {
         }
         // Parse upload rules
         const rules = (0, utils_1.parseUploadRules)(inputs.assets);
+        (0, utils_1.logDebug)('Parsed upload rules', rules);
         if (rules.length === 0) {
             core.setFailed('No valid upload rules found in assets input');
             return;
@@ -70014,6 +70027,7 @@ async function run() {
         // Perform uploads
         const results = await uploader.uploadFiles(rules, uploadOptions);
         const stats = uploader.getStats();
+        (0, utils_1.logDebug)('Upload results', { results, stats });
         // Set outputs
         await setActionOutputs(results, stats, ossConfig);
         // Create job summary
@@ -70049,7 +70063,8 @@ function getActionInputs() {
         continueOnError: core.getInput('continue-on-error') || 'false',
         enableGzip: core.getInput('enable-gzip') || 'false',
         publicRead: core.getInput('public-read') || 'false',
-        headers: core.getInput('headers') || undefined
+        headers: core.getInput('headers') || undefined,
+        enableDebug: core.getInput('enable-debug') || 'false'
     };
 }
 /**
@@ -70336,18 +70351,22 @@ class OSSUploader {
      */
     async processRule(rule, options) {
         (0, utils_1.logOperation)(`Processing rule`, `${rule.source} → ${rule.destination}`);
+        (0, utils_1.logDebug)('Processing upload rule', rule);
         // For directory uploads, ensure source pattern includes glob to find all files
         let sourcePattern = rule.source;
         if (rule.isDirectory && !sourcePattern.includes('*') && !sourcePattern.includes('?') && !sourcePattern.includes('[')) {
             // If it's a directory upload but source doesn't have glob patterns, add them
             sourcePattern = sourcePattern.endsWith('/') ? `${sourcePattern}**/*` : `${sourcePattern}/**/*`;
             (0, utils_1.logOperation)(`Converted directory pattern`, `${rule.source} → ${sourcePattern}`);
+            (0, utils_1.logDebug)('Directory pattern converted', { original: rule.source, converted: sourcePattern });
         }
+        (0, utils_1.logDebug)('Searching for files with pattern', sourcePattern);
         const files = fg.sync([sourcePattern], {
             dot: false,
             onlyFiles: true,
             absolute: true
         });
+        (0, utils_1.logDebug)('Found files', { pattern: sourcePattern, count: files.length, files });
         // Check if this is a specific file path that doesn't exist
         // (as opposed to a glob pattern that legitimately finds no files)
         const isSpecificFile = !sourcePattern.includes('*') && !sourcePattern.includes('?') && !sourcePattern.includes('[');
@@ -70395,8 +70414,10 @@ class OSSUploader {
      */
     async uploadSingleFile(localPath, remotePath, options) {
         try {
+            (0, utils_1.logDebug)('Starting single file upload', { localPath, remotePath });
             const fileStats = await (0, utils_1.getFileStats)(localPath);
             this.stats.totalSize += fileStats.size;
+            (0, utils_1.logDebug)('File stats obtained', { localPath, size: fileStats.size, name: fileStats.name });
             const result = await this.uploadWithRetry(() => this.performUpload(localPath, remotePath, options), localPath, fileStats);
             if (result) {
                 this.stats.uploadedFiles++;
@@ -70418,6 +70439,7 @@ class OSSUploader {
      * Perform the actual upload with OSS
      */
     async performUpload(localPath, remotePath, options) {
+        (0, utils_1.logDebug)('Performing OSS upload', { localPath, remotePath, options });
         const uploadOptions = {
             timeout: options.timeout || 600000,
             ...options
@@ -70430,10 +70452,11 @@ class OSSUploader {
             };
         }
         const response = await this.oss.put(remotePath, (0, path_1.resolve)(localPath), uploadOptions);
+        (0, utils_1.logDebug)('OSS upload response received', { remotePath, responseStatus: response?.res?.status });
         // Handle OSS response structure safely
         const ossResponse = response;
         const fileStats = await (0, utils_1.getFileStats)(localPath);
-        return {
+        const result = {
             success: true,
             filePath: localPath,
             objectKey: remotePath,
@@ -70441,26 +70464,32 @@ class OSSUploader {
             ...(ossResponse.res?.headers?.etag && { etag: ossResponse.res.headers.etag }),
             ...(ossResponse.url && { url: ossResponse.url })
         };
+        (0, utils_1.logDebug)('Upload result created', result);
+        return result;
     }
     /**
      * Upload with retry logic and exponential backoff
      */
     async uploadWithRetry(uploadFn, _filePath, fileStats) {
         const fileSizeFormatted = (0, utils_1.formatFileSize)(fileStats.size);
+        (0, utils_1.logDebug)('Starting upload with retry', { fileName: fileStats.name, size: fileSizeFormatted, maxRetries: this.retryConfig.maxRetries });
         for (let attempt = 0; attempt < this.retryConfig.maxRetries; attempt++) {
             try {
                 const retryLabel = attempt > 0 ? ` - Retry ${attempt}` : '';
                 (0, utils_1.logOperation)(`⬆️  Uploading ${fileStats.name} (${fileSizeFormatted})${retryLabel}`);
+                (0, utils_1.logDebug)('Upload attempt', { attempt: attempt + 1, fileName: fileStats.name });
                 const startTime = Date.now();
                 const result = await uploadFn();
                 const duration = Date.now() - startTime;
                 (0, utils_1.logSuccess)(`Uploaded ${fileStats.name} in ${(0, utils_1.formatDuration)(duration)}`);
+                (0, utils_1.logDebug)('Upload successful', { fileName: fileStats.name, duration, attempt: attempt + 1 });
                 return result;
             }
             catch (error) {
                 const isLastAttempt = attempt === this.retryConfig.maxRetries - 1;
                 const errorMessage = error instanceof Error ? error.message : 'Unknown error';
                 (0, utils_1.logWarning)(`Upload failed for ${fileStats.name}: ${errorMessage}`);
+                (0, utils_1.logDebug)('Upload attempt failed', { fileName: fileStats.name, attempt: attempt + 1, error: errorMessage, isLastAttempt });
                 // Convert to Error for the retry check
                 const errorObj = error instanceof Error ? error : new Error(String(error));
                 // Check if it's a retryable error
@@ -70473,6 +70502,7 @@ class OSSUploader {
                 // Calculate backoff delay
                 const delayMs = (0, utils_1.calculateBackoffDelay)(attempt, this.retryConfig.baseDelay, this.retryConfig.maxDelay, this.retryConfig.backoffMultiplier);
                 (0, utils_1.logOperation)(`⏳ Retrying in ${(0, utils_1.formatDuration)(delayMs)}... (attempt ${attempt + 2}/${this.retryConfig.maxRetries})`);
+                (0, utils_1.logDebug)('Retry delay calculated', { delayMs, attempt, fileName: fileStats.name });
                 await (0, utils_1.delay)(delayMs);
             }
         }
@@ -70538,12 +70568,16 @@ class OSSUploader {
      */
     async testConnection() {
         try {
+            (0, utils_1.logDebug)('Testing OSS connection', { bucket: this.config.bucket, region: this.config.region });
             await this.oss.getBucketInfo(this.config.bucket);
             (0, utils_1.logSuccess)('OSS connection test successful');
+            (0, utils_1.logDebug)('OSS connection test details', { bucket: this.config.bucket, status: 'success' });
             return true;
         }
         catch (error) {
-            (0, utils_1.logError)(`OSS connection test failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            (0, utils_1.logError)(`OSS connection test failed: ${errorMessage}`);
+            (0, utils_1.logDebug)('OSS connection test failed', { bucket: this.config.bucket, error: errorMessage });
             return false;
         }
     }
@@ -70610,6 +70644,8 @@ exports.logOperation = logOperation;
 exports.logSuccess = logSuccess;
 exports.logWarning = logWarning;
 exports.logError = logError;
+exports.logDebug = logDebug;
+exports.isDebugEnabled = isDebugEnabled;
 const fs_1 = __nccwpck_require__(79896);
 const path_1 = __nccwpck_require__(16928);
 const core = __importStar(__nccwpck_require__(37484));
@@ -70795,6 +70831,37 @@ function logWarning(message) {
  */
 function logError(message) {
     core.error(`❌ ${message}`);
+}
+/**
+ * Logs debug information (only visible when ACTIONS_STEP_DEBUG=true)
+ */
+function logDebug(message, details) {
+    if (details && typeof details === 'object') {
+        core.debug(`🐛 ${message}: ${JSON.stringify(details, null, 2)}`);
+    }
+    else if (details !== undefined) {
+        core.debug(`🐛 ${message}: ${details}`);
+    }
+    else {
+        core.debug(`🐛 ${message}`);
+    }
+}
+/**
+ * Checks if debug mode is enabled
+ */
+function isDebugEnabled() {
+    // Check environment variable first (GitHub Actions standard)
+    if (process.env.ACTIONS_STEP_DEBUG === 'true') {
+        return true;
+    }
+    // Check action input (our custom option)
+    try {
+        return core.getInput('enable-debug') === 'true';
+    }
+    catch {
+        // If core.getInput fails (e.g., in tests), default to false
+        return false;
+    }
 }
 
 

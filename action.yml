@@ -46,6 +46,10 @@ inputs:
   headers:
     required: false
     description: 'Custom headers as JSON string (e.g., {"Cache-Control":"max-age=3600"})'
+  enable-debug:
+    required: false
+    default: 'false'
+    description: 'Enable verbose debug logging (alternative to ACTIONS_STEP_DEBUG)'
 outputs:
   url:
     description: 'Comma-separated list of uploaded file URLs'

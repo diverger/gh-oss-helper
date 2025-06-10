@@ -44,6 +44,7 @@ export interface ActionInputs {
     enableGzip?: string | undefined;
     publicRead?: string | undefined;
     headers?: string | undefined;
+    enableDebug?: string | undefined;
 }
 export interface RetryConfig {
     maxRetries: number;

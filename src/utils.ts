@@ -215,3 +215,34 @@ export function logWarning(message: string): void {
 export function logError(message: string): void {
   core.error(`❌ ${message}`);
 }
+
+/**
+ * Logs debug information (only visible when ACTIONS_STEP_DEBUG=true)
+ */
+export function logDebug(message: string, details?: any): void {
+  if (details && typeof details === 'object') {
+    core.debug(`🐛 ${message}: ${JSON.stringify(details, null, 2)}`);
+  } else if (details !== undefined) {
+    core.debug(`🐛 ${message}: ${details}`);
+  } else {
+    core.debug(`🐛 ${message}`);
+  }
+}
+
+/**
+ * Checks if debug mode is enabled
+ */
+export function isDebugEnabled(): boolean {
+  // Check environment variable first (GitHub Actions standard)
+  if (process.env.ACTIONS_STEP_DEBUG === 'true') {
+    return true;
+  }
+
+  // Check action input (our custom option)
+  try {
+    return core.getInput('enable-debug') === 'true';
+  } catch {
+    // If core.getInput fails (e.g., in tests), default to false
+    return false;
+  }
+}

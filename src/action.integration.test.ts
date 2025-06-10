@@ -22,6 +22,7 @@ vi.mock('@actions/core', () => ({
   info: vi.fn((msg: string) => mockInfo.push(msg)),
   warning: vi.fn((msg: string) => mockWarnings.push(msg)),
   error: vi.fn((msg: string) => mockErrors.push(msg)),
+  debug: vi.fn((msg: string) => mockInfo.push(`DEBUG: ${msg}`)), // Add debug mock
   setFailed: vi.fn((msg: string) => {
     mockFailed = true;
     mockErrors.push(msg);

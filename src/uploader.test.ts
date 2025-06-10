@@ -33,7 +33,8 @@ vi.mock('./utils', () => ({
   logOperation: vi.fn(),
   logSuccess: vi.fn(),
   logWarning: vi.fn(),
-  logError: vi.fn()
+  logError: vi.fn(),
+  logDebug: vi.fn()
 }));
 
 // Mock fs
