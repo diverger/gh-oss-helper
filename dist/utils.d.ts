@@ -67,6 +67,11 @@ export declare function logWarning(message: string): void;
 export declare function logError(message: string): void;
 /**
  * Logs debug information (visible when debug mode is enabled)
+ *
+ * Note: We use core.info() instead of core.debug() because:
+ * - core.debug() often doesn't appear even in raw logs due to GitHub Actions limitations
+ * - Runner-level filtering and action context issues can suppress debug output
+ * - Using core.info() with conditional checking provides better visibility and control
  */
 export declare function logDebug(message: string, details?: any): void;
 /**
