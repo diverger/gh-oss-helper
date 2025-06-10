@@ -28,7 +28,7 @@ on:
         required: false
         default: ''
       enable_debug:
-        description: 'Enable debug logging (ACTIONS_STEP_DEBUG)'
+        description: 'Enable verbose debug logging for troubleshooting'
         required: false
         type: boolean
         default: false
