@@ -69988,11 +69988,26 @@ async function run() {
     try {
         core.info('🚀 Starting OSS upload process...');
         if ((0, utils_1.isDebugEnabled)()) {
-            (0, utils_1.logDebug)('Debug mode enabled');
+            core.info('🐛 ===============================================');
+            core.info('🐛 DEBUG MODE ENABLED - Verbose logging active');
+            core.info('🐛 ===============================================');
+            (0, utils_1.logDebug)('Debug mode enabled', {
+                ACTIONS_STEP_DEBUG: process.env.ACTIONS_STEP_DEBUG,
+                enableDebugInput: core.getInput('enable-debug')
+            });
         }
         // Get and validate inputs
         const inputs = getActionInputs();
-        (0, utils_1.logDebug)('Raw action inputs', inputs);
+        if ((0, utils_1.isDebugEnabled)()) {
+            (0, utils_1.logDebug)('Raw action inputs received', {
+                region: inputs.region,
+                bucket: inputs.bucket,
+                timeout: inputs.timeout,
+                maxRetries: inputs.maxRetries,
+                enableDebug: inputs.enableDebug,
+                assetsLength: inputs.assets.length
+            });
+        }
         (0, utils_1.validateInputs)(inputs);
         // Create OSS configuration
         const ossConfig = createOSSConfig(inputs);
@@ -70326,13 +70341,20 @@ class OSSUploader {
         const results = [];
         const startTime = Date.now();
         (0, utils_1.logOperation)('Starting upload process', `${rules.length} rule(s)`);
+        (0, utils_1.logDebug)('Upload process started', { rulesCount: rules.length, options });
         for (const rule of rules) {
             try {
+                (0, utils_1.logDebug)('Processing upload rule', { rule, ruleIndex: rules.indexOf(rule) + 1 });
                 const ruleResults = await this.processRule(rule, options);
                 results.push(...ruleResults);
+                (0, utils_1.logDebug)('Rule processing completed', {
+                    rule: rule.source + ' → ' + rule.destination,
+                    resultCount: ruleResults.length
+                });
             }
             catch (error) {
                 (0, utils_1.logError)(`Failed to process rule: ${rule.source} → ${rule.destination}`);
+                (0, utils_1.logDebug)('Rule processing failed', { rule, error: error instanceof Error ? error.message : error });
                 if (error instanceof Error) {
                     core.error(error.message);
                 }
@@ -70833,17 +70855,21 @@ function logError(message) {
     core.error(`❌ ${message}`);
 }
 /**
- * Logs debug information (only visible when ACTIONS_STEP_DEBUG=true)
+ * Logs debug information (visible when debug mode is enabled)
  */
 function logDebug(message, details) {
+    if (!isDebugEnabled()) {
+        return;
+    }
     if (details && typeof details === 'object') {
-        core.debug(`🐛 ${message}: ${JSON.stringify(details, null, 2)}`);
+        // Use core.info() instead of core.debug() for better visibility
+        core.info(`🐛 DEBUG: ${message}: ${JSON.stringify(details, null, 2)}`);
     }
     else if (details !== undefined) {
-        core.debug(`🐛 ${message}: ${details}`);
+        core.info(`🐛 DEBUG: ${message}: ${details}`);
     }
     else {
-        core.debug(`🐛 ${message}`);
+        core.info(`🐛 DEBUG: ${message}`);
     }
 }
 /**

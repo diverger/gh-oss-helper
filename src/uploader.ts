@@ -70,13 +70,20 @@ export class OSSUploader {
     const startTime = Date.now();
 
     logOperation('Starting upload process', `${rules.length} rule(s)`);
+    logDebug('Upload process started', { rulesCount: rules.length, options });
 
     for (const rule of rules) {
       try {
+        logDebug('Processing upload rule', { rule, ruleIndex: rules.indexOf(rule) + 1 });
         const ruleResults = await this.processRule(rule, options);
         results.push(...ruleResults);
+        logDebug('Rule processing completed', {
+          rule: rule.source + ' → ' + rule.destination,
+          resultCount: ruleResults.length
+        });
       } catch (error) {
         logError(`Failed to process rule: ${rule.source} → ${rule.destination}`);
+        logDebug('Rule processing failed', { rule, error: error instanceof Error ? error.message : error });
         if (error instanceof Error) {
           core.error(error.message);
         }

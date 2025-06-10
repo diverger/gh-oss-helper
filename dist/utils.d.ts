@@ -66,7 +66,7 @@ export declare function logWarning(message: string): void;
  */
 export declare function logError(message: string): void;
 /**
- * Logs debug information (only visible when ACTIONS_STEP_DEBUG=true)
+ * Logs debug information (visible when debug mode is enabled)
  */
 export declare function logDebug(message: string, details?: any): void;
 /**

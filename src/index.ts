@@ -12,18 +12,31 @@ import { validateInputs, parseUploadRules, parseHeaders, formatFileSize, formatD
  * Main action runner
  */
 async function run(): Promise<void> {
-  const startTime = Date.now();
-
-  try {
+  const startTime = Date.now();  try {
     core.info('🚀 Starting OSS upload process...');
 
     if (isDebugEnabled()) {
-      logDebug('Debug mode enabled');
+      core.info('🐛 ===============================================');
+      core.info('🐛 DEBUG MODE ENABLED - Verbose logging active');
+      core.info('🐛 ===============================================');
+      logDebug('Debug mode enabled', {
+        ACTIONS_STEP_DEBUG: process.env.ACTIONS_STEP_DEBUG,
+        enableDebugInput: core.getInput('enable-debug')
+      });
     }
 
     // Get and validate inputs
     const inputs = getActionInputs();
-    logDebug('Raw action inputs', inputs);
+    if (isDebugEnabled()) {
+      logDebug('Raw action inputs received', {
+        region: inputs.region,
+        bucket: inputs.bucket,
+        timeout: inputs.timeout,
+        maxRetries: inputs.maxRetries,
+        enableDebug: inputs.enableDebug,
+        assetsLength: inputs.assets.length
+      });
+    }
     validateInputs(inputs);
 
     // Create OSS configuration

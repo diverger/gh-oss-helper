@@ -62,7 +62,8 @@ jobs:
           echo "⚠️  Limited access - using test credentials for dry-run"
         fi
         if [ "${{ inputs.enable_debug }}" = "true" ]; then
-          echo "🐛 Debug logging enabled (ACTIONS_STEP_DEBUG=true)"
+          echo "🐛 Debug logging enabled - look for '🐛 DEBUG:' messages in action logs"
+          echo "📋 To see all debug output: View raw logs or download logs after workflow completes"
         fi
         echo ""
 
@@ -269,7 +270,8 @@ jobs:
         fi
 
         if [ "${{ inputs.enable_debug }}" = "true" ]; then
-          echo "🐛 Debug mode was enabled for test steps"
+          echo "🐛 Debug mode was enabled - check action logs for '🐛 DEBUG:' messages"
+          echo "💡 Debug output may be in 'Raw logs' view if not visible in summary"
         fi
 
         echo ""

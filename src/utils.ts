@@ -217,15 +217,20 @@ export function logError(message: string): void {
 }
 
 /**
- * Logs debug information (only visible when ACTIONS_STEP_DEBUG=true)
+ * Logs debug information (visible when debug mode is enabled)
  */
 export function logDebug(message: string, details?: any): void {
+  if (!isDebugEnabled()) {
+    return;
+  }
+
   if (details && typeof details === 'object') {
-    core.debug(`🐛 ${message}: ${JSON.stringify(details, null, 2)}`);
+    // Use core.info() instead of core.debug() for better visibility
+    core.info(`🐛 DEBUG: ${message}: ${JSON.stringify(details, null, 2)}`);
   } else if (details !== undefined) {
-    core.debug(`🐛 ${message}: ${details}`);
+    core.info(`🐛 DEBUG: ${message}: ${details}`);
   } else {
-    core.debug(`🐛 ${message}`);
+    core.info(`🐛 DEBUG: ${message}`);
   }
 }
 
