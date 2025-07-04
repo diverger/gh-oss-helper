@@ -70308,6 +70308,7 @@ const ali_oss_1 = __importDefault(__nccwpck_require__(14391));
 const path_1 = __nccwpck_require__(16928);
 const core = __importStar(__nccwpck_require__(37484));
 const fg = __importStar(__nccwpck_require__(25648));
+const fs_1 = __nccwpck_require__(79896);
 const types_1 = __nccwpck_require__(38522);
 const utils_1 = __nccwpck_require__(71798);
 class OSSUploader {
@@ -70375,12 +70376,26 @@ class OSSUploader {
         (0, utils_1.logOperation)(`Processing rule`, `${rule.source} → ${rule.destination}`);
         (0, utils_1.logDebug)('Processing upload rule', rule);
         // For directory uploads, ensure source pattern includes glob to find all files
+        // But first check if the source is actually a file - if so, don't convert to directory pattern
         let sourcePattern = rule.source;
         if (rule.isDirectory && !sourcePattern.includes('*') && !sourcePattern.includes('?') && !sourcePattern.includes('[')) {
+<<<<<<< HEAD
             // If it's a directory upload but source doesn't have glob patterns, add them
             sourcePattern = sourcePattern.endsWith('/') ? `${sourcePattern}**/*` : `${sourcePattern}/**/*`;
             (0, utils_1.logOperation)(`Converted directory pattern`, `${rule.source} → ${sourcePattern}`);
             (0, utils_1.logDebug)('Directory pattern converted', { original: rule.source, converted: sourcePattern });
+=======
+            // Check if the source path exists and is a file
+            if ((0, fs_1.existsSync)(sourcePattern) && (0, fs_1.statSync)(sourcePattern).isFile()) {
+                // Source is a file but destination is a directory - this is valid (single file to directory)
+                // Don't modify the source pattern
+            }
+            else {
+                // Source is not a file or doesn't exist, treat as directory pattern
+                sourcePattern = sourcePattern.endsWith('/') ? `${sourcePattern}**/*` : `${sourcePattern}/**/*`;
+                (0, utils_1.logOperation)(`Converted directory pattern`, `${rule.source} → ${sourcePattern}`);
+            }
+>>>>>>> origin/main
         }
         (0, utils_1.logDebug)('Searching for files with pattern', sourcePattern);
         const files = fg.sync([sourcePattern], {
@@ -70421,9 +70436,18 @@ class OSSUploader {
         else {
             // Directory upload - process files sequentially
             for (const file of files) {
-                // Use original rule.source for relative path extraction, not the modified sourcePattern
-                const relativePath = (0, utils_1.extractRelativePath)(file, rule.source);
-                const remotePath = (0, utils_1.sanitizeRemotePath)(`${rule.destination}${relativePath}`);
+                let remotePath;
+                // Check if this is a single file being uploaded to a directory destination
+                if (files.length === 1 && !rule.source.includes('*') && !rule.source.includes('?') && !rule.source.includes('[')) {
+                    // Single file to directory - use just the filename
+                    const filename = (0, path_1.basename)(file);
+                    remotePath = (0, utils_1.sanitizeRemotePath)(`${rule.destination}${filename}`);
+                }
+                else {
+                    // Multiple files or glob pattern - use relative path extraction
+                    const relativePath = (0, utils_1.extractRelativePath)(file, rule.source);
+                    remotePath = (0, utils_1.sanitizeRemotePath)(`${rule.destination}${relativePath}`);
+                }
                 const result = await this.uploadSingleFile(file, remotePath, options);
                 if (result)
                     results.push(result);
