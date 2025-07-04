@@ -3,9 +3,10 @@
  */
 
 import OSS from 'ali-oss';
-import { resolve } from 'path';
+import { resolve, basename } from 'path';
 import * as core from '@actions/core';
 import * as fg from 'fast-glob';
+import { existsSync, statSync } from 'fs';
 import {
   OSSConfig,
   UploadRule,
@@ -99,11 +100,18 @@ export class OSSUploader {
     logOperation(`Processing rule`, `${rule.source} → ${rule.destination}`);
 
     // For directory uploads, ensure source pattern includes glob to find all files
+    // But first check if the source is actually a file - if so, don't convert to directory pattern
     let sourcePattern = rule.source;
     if (rule.isDirectory && !sourcePattern.includes('*') && !sourcePattern.includes('?') && !sourcePattern.includes('[')) {
-      // If it's a directory upload but source doesn't have glob patterns, add them
-      sourcePattern = sourcePattern.endsWith('/') ? `${sourcePattern}**/*` : `${sourcePattern}/**/*`;
-      logOperation(`Converted directory pattern`, `${rule.source} → ${sourcePattern}`);
+      // Check if the source path exists and is a file
+      if (existsSync(sourcePattern) && statSync(sourcePattern).isFile()) {
+        // Source is a file but destination is a directory - this is valid (single file to directory)
+        // Don't modify the source pattern
+      } else {
+        // Source is not a file or doesn't exist, treat as directory pattern
+        sourcePattern = sourcePattern.endsWith('/') ? `${sourcePattern}**/*` : `${sourcePattern}/**/*`;
+        logOperation(`Converted directory pattern`, `${rule.source} → ${sourcePattern}`);
+      }
     }
 
     const files = fg.sync([sourcePattern], {
@@ -146,9 +154,18 @@ export class OSSUploader {
     } else {
       // Directory upload - process files sequentially
       for (const file of files) {
-        // Use original rule.source for relative path extraction, not the modified sourcePattern
-        const relativePath = extractRelativePath(file, rule.source);
-        const remotePath = sanitizeRemotePath(`${rule.destination}${relativePath}`);
+        let remotePath: string;
+        
+        // Check if this is a single file being uploaded to a directory destination
+        if (files.length === 1 && !rule.source.includes('*') && !rule.source.includes('?') && !rule.source.includes('[')) {
+          // Single file to directory - use just the filename
+          const filename = basename(file);
+          remotePath = sanitizeRemotePath(`${rule.destination}${filename}`);
+        } else {
+          // Multiple files or glob pattern - use relative path extraction
+          const relativePath = extractRelativePath(file, rule.source);
+          remotePath = sanitizeRemotePath(`${rule.destination}${relativePath}`);
+        }
 
         const result = await this.uploadSingleFile(file, remotePath, options);
         if (result) results.push(result);
