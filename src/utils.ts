@@ -215,3 +215,44 @@ export function logWarning(message: string): void {
 export function logError(message: string): void {
   core.error(`❌ ${message}`);
 }
+
+/**
+ * Logs debug information (visible when debug mode is enabled)
+ *
+ * Note: We use core.info() instead of core.debug() because:
+ * - core.debug() often doesn't appear even in raw logs due to GitHub Actions limitations
+ * - Runner-level filtering and action context issues can suppress debug output
+ * - Using core.info() with conditional checking provides better visibility and control
+ */
+export function logDebug(message: string, details?: any): void {
+  if (!isDebugEnabled()) {
+    return;
+  }
+
+  if (details && typeof details === 'object') {
+    // Use core.info() instead of core.debug() for better visibility
+    core.info(`🐛 DEBUG: ${message}: ${JSON.stringify(details, null, 2)}`);
+  } else if (details !== undefined) {
+    core.info(`🐛 DEBUG: ${message}: ${details}`);
+  } else {
+    core.info(`🐛 DEBUG: ${message}`);
+  }
+}
+
+/**
+ * Checks if debug mode is enabled
+ */
+export function isDebugEnabled(): boolean {
+  // Check environment variable first (GitHub Actions standard)
+  if (process.env.ACTIONS_STEP_DEBUG === 'true') {
+    return true;
+  }
+
+  // Check action input (our custom option)
+  try {
+    return core.getInput('enable-debug') === 'true';
+  } catch {
+    // If core.getInput fails (e.g., in tests), default to false
+    return false;
+  }
+}

@@ -6,30 +6,56 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { OSSUploader } from './uploader';
 import { ActionInputs, OSSConfig, RetryConfig, UploadOptions, UploadResult, UploadStats } from './types';
-import { validateInputs, parseUploadRules, parseHeaders, formatFileSize, formatDuration } from './utils';
+import { validateInputs, parseUploadRules, parseHeaders, formatFileSize, formatDuration, logDebug, isDebugEnabled } from './utils';
 
 /**
  * Main action runner
  */
 async function run(): Promise<void> {
-  const startTime = Date.now();
-
-  try {
+  const startTime = Date.now();  try {
     core.info('🚀 Starting OSS upload process...');
+
+    if (isDebugEnabled()) {
+      core.info('🐛 ===============================================');
+      core.info('🐛 DEBUG MODE ENABLED - Verbose logging active');
+      core.info('🐛 ===============================================');
+      logDebug('Debug mode enabled', {
+        ACTIONS_STEP_DEBUG: process.env.ACTIONS_STEP_DEBUG,
+        enableDebugInput: core.getInput('enable-debug')
+      });
+    }
 
     // Get and validate inputs
     const inputs = getActionInputs();
+    if (isDebugEnabled()) {
+      logDebug('Raw action inputs received', {
+        region: inputs.region,
+        bucket: inputs.bucket,
+        timeout: inputs.timeout,
+        maxRetries: inputs.maxRetries,
+        enableDebug: inputs.enableDebug,
+        assetsLength: inputs.assets.length
+      });
+    }
     validateInputs(inputs);
 
     // Create OSS configuration
     const ossConfig = createOSSConfig(inputs);
+    logDebug('OSS configuration created', {
+      bucket: ossConfig.bucket,
+      region: ossConfig.region,
+      endpoint: ossConfig.endpoint,
+      timeout: ossConfig.timeout
+    });
     logConnectionInfo(ossConfig);
 
     // Create retry configuration
     const retryConfig = createRetryConfig(inputs);
+    logDebug('Retry configuration', retryConfig);
 
     // Create upload options
     const uploadOptions = createUploadOptions(inputs);
+    logDebug('Upload options', uploadOptions);
 
     // Initialize uploader
     const uploader = new OSSUploader(ossConfig, retryConfig);
@@ -42,6 +68,7 @@ async function run(): Promise<void> {
 
     // Parse upload rules
     const rules = parseUploadRules(inputs.assets);
+    logDebug('Parsed upload rules', rules);
     if (rules.length === 0) {
       core.setFailed('No valid upload rules found in assets input');
       return;
@@ -52,6 +79,7 @@ async function run(): Promise<void> {
     // Perform uploads
     const results = await uploader.uploadFiles(rules, uploadOptions);
     const stats = uploader.getStats();
+    logDebug('Upload results', { results, stats });
 
     // Set outputs
     await setActionOutputs(results, stats, ossConfig);
@@ -92,7 +120,8 @@ function getActionInputs(): ActionInputs {
     continueOnError: core.getInput('continue-on-error') || 'false',
     enableGzip: core.getInput('enable-gzip') || 'false',
     publicRead: core.getInput('public-read') || 'false',
-    headers: core.getInput('headers') || undefined
+    headers: core.getInput('headers') || undefined,
+    enableDebug: core.getInput('enable-debug') || 'false'
   };
 }
 
