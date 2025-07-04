@@ -112,12 +112,6 @@ export class OSSUploader {
     // But first check if the source is actually a file - if so, don't convert to directory pattern
     let sourcePattern = rule.source;
     if (rule.isDirectory && !sourcePattern.includes('*') && !sourcePattern.includes('?') && !sourcePattern.includes('[')) {
-<<<<<<< HEAD
-      // If it's a directory upload but source doesn't have glob patterns, add them
-      sourcePattern = sourcePattern.endsWith('/') ? `${sourcePattern}**/*` : `${sourcePattern}/**/*`;
-      logOperation(`Converted directory pattern`, `${rule.source} → ${sourcePattern}`);
-      logDebug('Directory pattern converted', { original: rule.source, converted: sourcePattern });
-=======
       // Check if the source path exists and is a file
       if (existsSync(sourcePattern) && statSync(sourcePattern).isFile()) {
         // Source is a file but destination is a directory - this is valid (single file to directory)
@@ -127,7 +121,6 @@ export class OSSUploader {
         sourcePattern = sourcePattern.endsWith('/') ? `${sourcePattern}**/*` : `${sourcePattern}/**/*`;
         logOperation(`Converted directory pattern`, `${rule.source} → ${sourcePattern}`);
       }
->>>>>>> origin/main
     }
 
     logDebug('Searching for files with pattern', sourcePattern);
@@ -173,7 +166,7 @@ export class OSSUploader {
       // Directory upload - process files sequentially
       for (const file of files) {
         let remotePath: string;
-        
+
         // Check if this is a single file being uploaded to a directory destination
         if (files.length === 1 && !rule.source.includes('*') && !rule.source.includes('?') && !rule.source.includes('[')) {
           // Single file to directory - use just the filename
