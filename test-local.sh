@@ -93,6 +93,14 @@ run_all_tests() {
     if [ ! -d "node_modules" ]; then
         print_info "Installing dependencies..."
         npm install
+    else
+        # Check if package-lock.json is in sync with package.json
+        print_info "Checking if dependencies are up to date..."
+        if ! npm ci --dry-run >/dev/null 2>&1; then
+            print_warning "Lock file is out of sync with package.json"
+            print_info "Updating dependencies..."
+            npm install
+        fi
     fi
 
     # Run TypeScript check
