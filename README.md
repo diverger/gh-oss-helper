@@ -10,18 +10,6 @@
 
 A TypeScript GitHub Action for uploading assets to Alibaba Cloud OSS (Object Storage Service).
 
-## ✨ Features
-
-- 🚀 **Fast & Reliable**: Built with TypeScript for type safety and performance
-- 🔄 **Smart Retry Logic**: Exponential backoff with configurable retry attempts
-- 📊 **Comprehensive Reporting**: Detailed upload statistics and summaries
-- 🛡️ **Error Handling**: Graceful error handling with detailed error messages
-- ⚡ **Flexible Configuration**: Support for custom headers, compression, and ACL settings
-- 🔧 **Modern Toolchain**: ESLint 9, Vitest, TypeScript 5.7, and @vercel/ncc bundling
-- 🎯 **Sequential Processing**: Prevents race conditions and connection overload
-- ⏱️ **Timeout Management**: Configurable timeouts for all operations
-- 📈 **GitHub Job Summaries**: Rich upload reports in GitHub Actions UI
-
 ## 🚀 Quick Start
 
 ```yaml
