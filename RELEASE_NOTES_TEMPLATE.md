@@ -29,7 +29,7 @@
 ### Basic Upload
 ```yaml
 - name: Upload to OSS
-  uses: your-username/gh-oss-helper@[VERSION]
+  uses: diverger/gh-oss-helper@[VERSION]
   with:
     region: 'oss-cn-hangzhou'
     access-key: ${{ secrets.OSS_ACCESS_KEY }}
@@ -42,7 +42,7 @@
 
 ## 🔗 Full Changelog
 
-**Full Changelog**: https://github.com/your-username/gh-oss-helper/compare/[PREVIOUS]...[VERSION]
+**Full Changelog**: https://github.com/diverger/gh-oss-helper/compare/[PREVIOUS]...[VERSION]
 
 ---
 

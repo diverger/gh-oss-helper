@@ -1,34 +1,30 @@
-# 🚀 GH OSS Helper Release v1.0.4
-
-## ✨ What's New
-
-- **Debug Mode**: Added `enable-debug` input for verbose logging without requiring `ACTIONS_STEP_DEBUG`
-- Enhanced debug logging throughout the upload process for better troubleshooting
-- Added `isDebugEnabled()` and `logDebug()` utility functions for improved debugging experience
+# 🚀 GH OSS Helper Release v1.0.5
 
 ## 🔧 Changes
 
-- **Improved Directory Logic**: Refactored directory pattern conversion logic in uploader
-- **Better Error Handling**: Enhanced error handling for specific files vs glob patterns
-- **Enhanced Logging**: Improved debug logging and messaging in GitHub Actions
+- npm devDependencies
+  - `@eslint/js`: `^9.15.0` → `^9.35.0`
+  - `@types/node`: `^22.15.0` → `^24.4.0`
+  - `@typescript-eslint/eslint-plugin`: `^8.33.0` → `^8.43.0`
+  - `@typescript-eslint/parser`: `^8.33.0` → `^8.43.0`
+  - `@vitest/coverage-v8`: `^3.2.0` → `^3.2.4`
+  - `eslint`: `^9.15.0` → `^9.35.0`
+  - `tsx`: `^4.19.4` → `^4.20.3`
+  - `vitest`: `^3.2.0` → `^3.2.4`
 
-## 🐛 Bug Fixes
-
-- **Critical Fix**: Resolved `ENOTDIR` error when uploading single files (like ZIP files) to directory destinations
-- Fixed handling of single file uploads to directory paths by properly using basename for remote path
-- Improved file existence checking before glob pattern conversion
-- Prevented treating ZIP files as directories when destination ends with '/'
-
-## ⚠️ Breaking Changes
-
-None in this release.
+- GitHub Actions versions used in workflows
+  - `actions/checkout`: `@v4` → `@v5`
+  - `actions/setup-node`: `@v4` → `@v5`
+  - `codecov/codecov-action`: `@v4` → `@v5`
+  - `softprops/action-gh-release`: `@v1` → `@v2`
 
 ## 📖 Usage Examples
 
 ### Basic Upload
+
 ```yaml
 - name: Upload to OSS
-  uses: your-username/gh-oss-helper@v1.0.4
+  uses: diverger/gh-oss-helper@v1.0.5
   with:
     region: 'oss-cn-hangzhou'
     access-key: ${{ secrets.OSS_ACCESS_KEY }}
@@ -41,7 +37,7 @@ None in this release.
 
 ## 🔗 Full Changelog
 
-**Full Changelog**: https://github.com/your-username/gh-oss-helper/compare/v1.0.3...v1.0.4
+**Full Changelog**: https://github.com/diverger/gh-oss-helper/compare/v1.0.4...v1.0.5
 
 ---
 
