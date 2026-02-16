@@ -256,7 +256,8 @@ async function createJobSummary(stats: UploadStats, config: OSSConfig, startTime
 }
 
 // Run the action
-if (require.main === module) {
+// In ES modules, check if this is the main entry point
+if (import.meta.url === `file://${process.argv[1]}`) {
   run().catch(error => {
     core.setFailed(error instanceof Error ? error.message : 'Unknown error');
     process.exit(1);
