@@ -12,6 +12,7 @@ try {
     }
 } catch {
     # Silently continue if encoding setup fails
+    Write-Verbose "UTF-8 encoding setup failed: $_" -Verbose:$false
 }
 
 $ErrorActionPreference = "Stop"
@@ -32,7 +33,7 @@ function Write-Success {
     Write-Host "$icon $Message" -ForegroundColor Green
 }
 
-function Write-Warning {
+function Write-WarnMessage {
     param([string]$Message)
     $icon = if ($supportsUnicode) { "⚠️" } else { "[!]" }
     Write-Host "$icon  $Message" -ForegroundColor Yellow
@@ -62,11 +63,9 @@ function Archive-ReleaseNotes {
     Write-Success "Created backup of current release notes"
 
     # Extract current release notes (everything before the second release header)
-    $content = Get-Content "RELEASE_NOTES.md" -Raw
     $lines = Get-Content "RELEASE_NOTES.md"
     $releaseCount = 0
     $currentReleaseLines = @()
-    $rocketIcon = if ($supportsUnicode) { "🚀" } else { "" }
 
     foreach ($line in $lines) {
         if ($line -match "^## .*GH OSS Helper Release") {
@@ -134,10 +133,10 @@ function Prepare-NewRelease {
                 $content = $content -replace '\[PREVIOUS\]', $previousVersion
                 Write-Info "Set previous version to: $previousVersion"
             } else {
-                Write-Warning "No previous version found, keeping [PREVIOUS] placeholder"
+                Write-WarnMessage "No previous version found, keeping [PREVIOUS] placeholder"
             }
         } catch {
-            Write-Warning "Could not retrieve git tags, keeping [PREVIOUS] placeholder"
+            Write-WarnMessage "Could not retrieve git tags, keeping [PREVIOUS] placeholder"
         }
 
         $content | Set-Content "RELEASE_NOTES.md" -Encoding UTF8 -NoNewline
@@ -185,7 +184,7 @@ function Main {
 
     # Check if we're in the right directory
     if (-not (Test-Path "action.yml") -or -not (Test-Path "package.json")) {
-        Write-ErrorMessage "This script must be run from the root of the gh-obs-helper repository!"
+        Write-ErrorMessage "This script must be run from the root of the gh-oss-helper repository!"
         exit 1
     }
 
@@ -209,7 +208,7 @@ function Main {
     # Confirm
     $confirm = Read-Host "Continue with release preparation? (y/N)"
     if ($confirm -notmatch '^[Yy]$') {
-        Write-Warning "Release preparation cancelled"
+        Write-WarnMessage "Release preparation cancelled"
         exit 0
     }
 

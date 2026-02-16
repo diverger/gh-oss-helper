@@ -12,6 +12,7 @@ try {
     }
 } catch {
     # Silently continue if encoding setup fails
+    Write-Verbose "UTF-8 encoding setup failed: $_" -Verbose:$false
 }
 
 $ErrorActionPreference = "Stop"
@@ -32,7 +33,7 @@ function Write-Success {
     Write-Host "$icon $Message" -ForegroundColor Green
 }
 
-function Write-Warning {
+function Write-WarnMessage {
     param([string]$Message)
     $icon = if ($supportsUnicode) { "⚠️" } else { "[!]" }
     Write-Host "$icon  $Message" -ForegroundColor Yellow
@@ -48,6 +49,10 @@ function Write-ErrorMessage {
 function Test-Unit {
     Write-Info "Running unit tests..."
     npm test
+    if ($LASTEXITCODE -ne 0) {
+        Write-ErrorMessage "Unit tests failed"
+        exit 1
+    }
     Write-Success "Unit tests completed"
 }
 
@@ -62,6 +67,10 @@ function Test-Build {
 function Test-TypeScript {
     Write-Info "Testing TypeScript compilation..."
     npm run check
+    if ($LASTEXITCODE -ne 0) {
+        Write-ErrorMessage "TypeScript check failed"
+        exit 1
+    }
     Write-Success "TypeScript check passed"
 }
 
@@ -69,6 +78,10 @@ function Test-TypeScript {
 function Test-Linting {
     Write-Info "Running ESLint..."
     npm run lint
+    if ($LASTEXITCODE -ne 0) {
+        Write-ErrorMessage "Linting failed"
+        exit 1
+    }
     Write-Success "Linting passed"
 }
 
@@ -86,7 +99,7 @@ function Test-Coverage {
             Start-Process $coverageFile
         }
     } else {
-        Write-Warning "Coverage directory not found"
+        Write-WarnMessage "Coverage directory not found"
     }
 }
 
@@ -112,9 +125,9 @@ function Invoke-AllTests {
         # Check if package-lock.json is in sync with package.json
         Write-Info "Checking if dependencies are up to date..."
         try {
-            $dryRunOutput = npm ci --dry-run 2>&1
+            $null = npm ci --dry-run 2>&1
             if ($LASTEXITCODE -ne 0) {
-                Write-Warning "Lock file is out of sync with package.json"
+                Write-WarnMessage "Lock file is out of sync with package.json"
                 Write-Info "Updating dependencies..."
                 npm install
             }

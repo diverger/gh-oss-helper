@@ -12,6 +12,7 @@ try {
     }
 } catch {
     # Silently continue if encoding setup fails
+    Write-Verbose "UTF-8 encoding setup failed: $_" -Verbose:$false
 }
 
 $ErrorActionPreference = "Stop"
@@ -32,7 +33,7 @@ function Write-Success {
     Write-Host "$icon $Message" -ForegroundColor Green
 }
 
-function Write-Warning {
+function Write-WarnMessage {
     param([string]$Message)
     $icon = if ($supportsUnicode) { "⚠️" } else { "[!]" }
     Write-Host "$icon  $Message" -ForegroundColor Yellow
@@ -76,7 +77,7 @@ if (-not (Test-Path "node_modules")) {
     }
 
     if ($needsUpdate) {
-        Write-Warning "Package files appear out of sync"
+        Write-WarnMessage "Package files appear out of sync"
         Write-Info "Updating dependencies..."
         npm install
     } else {
