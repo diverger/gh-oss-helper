@@ -10,12 +10,10 @@ export default defineConfig({
   minify: true,
   clean: true,
   bundle: true,
-  noExternal: [/(.*)/], // Bundle all dependencies
-  external: ['proxy-agent'],
   dts: true,
   treeshake: true,
   splitting: false,
-  shims: true, // Add shim for __dirname, __filename, etc.
+  shims: true,
   outExtension() {
     return {
       js: '.mjs',
