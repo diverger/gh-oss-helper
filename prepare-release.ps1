@@ -119,7 +119,7 @@ function Prepare-NewRelease {
 
     # Copy template to RELEASE_NOTES.md
     if (Test-Path "RELEASE_NOTES_TEMPLATE.md") {
-        $content = Get-Content "RELEASE_NOTES_TEMPLATE.md" -Raw
+        $content = Get-Content "RELEASE_NOTES_TEMPLATE.md" -Raw -Encoding UTF8
 
         # Replace version placeholders (strip 'v' prefix to avoid double 'v')
         $versionNumber = $NewVersion -replace '^v', ''
@@ -139,7 +139,8 @@ function Prepare-NewRelease {
             Write-WarnMessage "Could not retrieve git tags, keeping [PREVIOUS] placeholder"
         }
 
-        $content | Set-Content "RELEASE_NOTES.md" -Encoding UTF8 -NoNewline
+        # Write with UTF8 encoding (with BOM for better compatibility)
+        $content | Out-File "RELEASE_NOTES.md" -Encoding UTF8 -NoNewline
 
         Write-Success "Created new release notes template for $NewVersion"
         Write-Info "Please edit RELEASE_NOTES.md to add your release information"
