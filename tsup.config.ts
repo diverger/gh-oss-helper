@@ -10,7 +10,6 @@ export default defineConfig({
   minify: true,
   clean: true,
   bundle: true,
-  dts: true,
   treeshake: true,
   splitting: false,
   shims: true,
