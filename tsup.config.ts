@@ -16,7 +16,7 @@ export default defineConfig({
   external: ['@actions/*'],
 
   // Bundle all other dependencies (like ali-oss) since node_modules is ignored
-  noExternal: [/^(?!@actions\/).*$/],
+  noExternal: [/(.*)/],
 
   // Output .mjs (explicitly recommended)
   outExtension({ format }) {
