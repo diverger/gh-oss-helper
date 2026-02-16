@@ -12,10 +12,8 @@ export default defineConfig({
   treeshake: true,
   splitting: false,
 
-  // Critical: externalize official packages provided by the runner
-  // Also externalize Node.js built-in modules to avoid dynamic require issues in ESM
+  // Externalize only Node.js built-in modules to avoid dynamic require issues in ESM
   external: [
-    '@actions/*',
     'node:*',
     'net',
     'tls',
@@ -36,10 +34,11 @@ export default defineConfig({
     'string_decoder',
   ],
 
-  // Don't use noExternal - let external list take precedence
-  // All dependencies (like ali-oss) will be bundled except those in external list
+  // Force bundle all npm packages including @actions/*
+  // GitHub Actions runners don't provide these as ES modules
+  noExternal: [/.*/],
 
-  // Shim for modules that might use dynamic require (may not be needed with proper externalization)
+  // Banner for potential dynamic require compatibility
   banner: {
     js: `import { createRequire } from 'module';const require = createRequire(import.meta.url);`,
   },
