@@ -1,30 +1,29 @@
-# 🚀 GH OSS Helper Release v1.0.5
+﻿# 🚀 GH OSS Helper Release v2.0.0
+
+## ✨ What's New
+
+### Node.js 24 & ESM Support
+- **Upgraded to Node.js 24 runtime** - Leveraging the latest Node.js features and performance improvements
+- **Full ESM (ECMAScript Modules) migration** - Modern module system with better tree-shaking and optimization
+- **Modernized bundling with tsup** - Reduced bundle size from ~73MB to ~6MB (90% reduction!)
+- **Enhanced build process** - Faster builds with source maps and optimized output
 
 ## 🔧 Changes
 
-- npm devDependencies
-  - `@eslint/js`: `^9.15.0` → `^9.35.0`
-  - `@types/node`: `^22.15.0` → `^24.4.0`
-  - `@typescript-eslint/eslint-plugin`: `^8.33.0` → `^8.43.0`
-  - `@typescript-eslint/parser`: `^8.33.0` → `^8.43.0`
-  - `@vitest/coverage-v8`: `^3.2.0` → `^3.2.4`
-  - `eslint`: `^9.15.0` → `^9.35.0`
-  - `tsx`: `^4.19.4` → `^4.20.3`
-  - `vitest`: `^3.2.0` → `^3.2.4`
-
-- GitHub Actions versions used in workflows
-  - `actions/checkout`: `@v4` → `@v5`
-  - `actions/setup-node`: `@v4` → `@v5`
-  - `codecov/codecov-action`: `@v4` → `@v5`
-  - `softprops/action-gh-release`: `@v1` → `@v2`
+- **Runtime**: Updated from Node.js 20 to Node.js 24
+- **Module System**: Migrated from CommonJS to ESM
+- **Bundler**: Switched from TypeScript compiler to tsup for better optimization
+- **Dependencies**: Updated all dev dependencies to latest versions supporting Node 24
+- **CI Actions**: Upgraded `actions/checkout` to v5, `actions/setup-node` to v5
+- **Build Output**: Changed from `dist/index.js` to `dist/index.mjs` (ESM format)
+- **Type System**: Enhanced TypeScript configuration for ESM and modern Node.js
 
 ## 📖 Usage Examples
 
-### Basic Upload
-
+### Basic Upload (No changes to usage!)
 ```yaml
 - name: Upload to OSS
-  uses: diverger/gh-oss-helper@v1.0.5
+  uses: diverger/gh-oss-helper@v2.0.0
   with:
     region: 'oss-cn-hangzhou'
     access-key: ${{ secrets.OSS_ACCESS_KEY }}
@@ -37,7 +36,7 @@
 
 ## 🔗 Full Changelog
 
-**Full Changelog**: https://github.com/diverger/gh-oss-helper/compare/v1.0.4...v1.0.5
+**Full Changelog**: https://github.com/diverger/gh-oss-helper/compare/v1.0.5...v2.0.0
 
 ---
 
