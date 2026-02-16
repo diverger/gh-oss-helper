@@ -9,7 +9,10 @@ export default defineConfig({
   sourcemap: true,
   minify: true,
   clean: true,
-  bundle: true,
+  external: [
+    '@actions/core',
+    '@actions/github',
+  ],
   treeshake: true,
   splitting: false,
   shims: true,
