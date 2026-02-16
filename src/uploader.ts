@@ -5,7 +5,7 @@
 import OSS from 'ali-oss';
 import { resolve, basename } from 'path';
 import * as core from '@actions/core';
-import * as fg from 'fast-glob';
+import fg from 'fast-glob';
 import { existsSync, statSync } from 'fs';
 import {
   OSSConfig,
