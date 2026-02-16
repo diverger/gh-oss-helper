@@ -34,7 +34,7 @@ jobs:
     if: github.repository == 'diverger/gh-oss-helper' || github.event_name == 'pull_request'
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -90,7 +90,7 @@ jobs:
     # For PRs, create build artifact for review
     - name: Upload build artifact (PR)
       if: github.event_name == 'pull_request'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: built-action
         path: dist/
