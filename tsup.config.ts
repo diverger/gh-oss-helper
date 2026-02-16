@@ -16,7 +16,12 @@ export default defineConfig({
   external: ['@actions/*'],
 
   // Bundle all other dependencies (like ali-oss) since node_modules is ignored
-  noExternal: [/(.*)/],
+  noExternal: [/^(?!@actions\/).*$/],
+
+  // Shim for modules that might use dynamic require
+  banner: {
+    js: `import { createRequire } from 'module';const require = createRequire(import.meta.url);`,
+  },
 
   // Output .mjs (explicitly recommended)
   outExtension({ format }) {
