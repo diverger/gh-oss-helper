@@ -9,17 +9,20 @@ import { OSSConfig, RetryConfig } from './types';
 // Mock ali-oss
 vi.mock('ali-oss', () => {
   return {
-    default: vi.fn().mockImplementation(() => ({
-      put: vi.fn(),
-      getBucketInfo: vi.fn()
-    }))
+    default: class MockOSS {
+      put = vi.fn();
+      getBucketInfo = vi.fn();
+    }
   };
 });
 
 // Mock fast-glob
-vi.mock('fast-glob', () => ({
-  sync: vi.fn()
-}));
+vi.mock('fast-glob', () => {
+  const mockSyncFn = vi.fn();
+  return {
+    default: { sync: mockSyncFn }
+  };
+});
 
 // Mock utils functions
 vi.mock('./utils', () => ({
@@ -46,11 +49,12 @@ vi.mock('fs', () => ({
 
 // Mock path
 vi.mock('path', () => ({
-  resolve: vi.fn((path) => path)
+  resolve: vi.fn((path) => path),
+  basename: vi.fn((path) => path.split('/').pop())
 }));
 
 // Import the mocked modules
-import * as fastGlob from 'fast-glob';
+import fg from 'fast-glob';
 import * as utils from './utils';
 
 describe('OSSUploader', () => {
@@ -59,7 +63,7 @@ describe('OSSUploader', () => {
   let mockRetryConfig: RetryConfig;
 
   // Get mocked functions
-  const mockSync = vi.mocked(fastGlob.sync);
+  const mockSync = vi.mocked(fg.sync);
   const mockGetFileStats = vi.mocked(utils.getFileStats);
 
   beforeEach(() => {

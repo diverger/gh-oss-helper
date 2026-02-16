@@ -14,11 +14,11 @@ jobs:
     if: github.repository == 'diverger/gh-oss-helper' || github.event_name == 'pull_request'
     strategy:
       matrix:
-        node-version: [18, 20]
+        node-version: [18, 20, 24]
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - name: Setup Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v5
@@ -47,12 +47,12 @@ jobs:
 
     - name: Verify build output
       run: |
-        if [ ! -f "dist/index.js" ]; then
-          echo "❌ Build failed: dist/index.js not found"
+        if [ ! -f "dist/index.mjs" ]; then
+          echo "❌ Build failed: dist/index.mjs not found"
           exit 1
         fi
         echo "✅ Build verification passed"
-        echo "📊 Build size: $(du -h dist/index.js | cut -f1)"
+        echo "📊 Build size: $(du -h dist/index.mjs | cut -f1)"
 
     - name: Test action execution (dry run)
       run: |
@@ -67,11 +67,11 @@ jobs:
 
         # This will test the action's input parsing and initial logic
         echo "🧪 Testing action execution (will fail at OSS connection, which is expected)..."
-        node dist/index.js || echo "Expected failure - no real OSS credentials"
+        node dist/index.mjs || echo "Expected failure - no real OSS credentials"
 
     - name: Upload coverage reports
       if: matrix.node-version == 20 && github.event_name == 'push'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: coverage-report
         path: coverage/

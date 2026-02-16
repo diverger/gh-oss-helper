@@ -76,5 +76,5 @@ outputs:
   region:
     description: 'OSS region used'
 runs:
-  using: 'node20'
-  main: 'dist/index.js'
+  using: 'node24'
+  main: 'dist/index.mjs'

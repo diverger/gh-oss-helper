@@ -4,6 +4,7 @@
 
 import * as core from '@actions/core';
 import * as github from '@actions/github';
+import { pathToFileURL } from 'url';
 import { OSSUploader } from './uploader';
 import { ActionInputs, OSSConfig, RetryConfig, UploadOptions, UploadResult, UploadStats } from './types';
 import { validateInputs, parseUploadRules, parseHeaders, formatFileSize, formatDuration, logDebug, isDebugEnabled } from './utils';
@@ -256,7 +257,7 @@ async function createJobSummary(stats: UploadStats, config: OSSConfig, startTime
 }
 
 // Run the action
-if (require.main === module) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   run().catch(error => {
     core.setFailed(error instanceof Error ? error.message : 'Unknown error');
     process.exit(1);

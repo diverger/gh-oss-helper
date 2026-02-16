@@ -18,14 +18,14 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
 
       - name: Install dependencies
@@ -36,7 +36,7 @@ jobs:
 
       - name: Verify build
         run: |
-          if [ ! -f "dist/index.js" ]; then
+          if [ ! -f "dist/index.mjs" ]; then
             echo "❌ Build failed"
             exit 1
           fi

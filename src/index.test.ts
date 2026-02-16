@@ -9,7 +9,9 @@ import * as github from '@actions/github';
 // Mock external dependencies
 vi.mock('@actions/core');
 vi.mock('@actions/github');
-vi.mock('./uploader');
+vi.mock('./uploader', () => ({
+  OSSUploader: vi.fn()
+}));
 vi.mock('./utils');
 
 // Import the module under test after mocking
@@ -77,8 +79,10 @@ describe('Main Action', () => {
     ]);
     mockParseHeaders.mockReturnValue({});
 
-    // Simple mock for uploader
-    mockOSSUploader.mockImplementation(() => mockUploaderInstance as any);
+    // Mock uploader as a constructor that returns the instance
+    (mockOSSUploader as any).mockImplementation(function(this: any) {
+      return mockUploaderInstance;
+    });
   });
 
   afterEach(() => {
@@ -109,7 +113,7 @@ describe('Main Action', () => {
     });
 
     it('should handle OSS configuration errors', async () => {
-      mockOSSUploader.mockImplementation(() => {
+      (mockOSSUploader as any).mockImplementation(function(this: any) {
         throw new Error('Failed to create OSS client');
       });
 
@@ -158,7 +162,7 @@ describe('Main Action', () => {
   describe('error handling', () => {
     it('should handle unexpected errors gracefully', async () => {
       const unexpectedError = new Error('Unexpected system error');
-      mockOSSUploader.mockImplementation(() => {
+      (mockOSSUploader as any).mockImplementation(function(this: any) {
         throw unexpectedError;
       });
 
@@ -168,7 +172,7 @@ describe('Main Action', () => {
     });
 
     it('should handle uploader instantiation errors', async () => {
-      mockOSSUploader.mockImplementation(() => {
+      (mockOSSUploader as any).mockImplementation(function(this: any) {
         throw new Error('Failed to initialize OSS client');
       });
 
