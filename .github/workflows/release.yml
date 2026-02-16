@@ -36,7 +36,7 @@ jobs:
 
       - name: Verify build
         run: |
-          if [ ! -f "dist/index.js" ]; then
+          if [ ! -f "dist/index.mjs" ]; then
             echo "❌ Build failed"
             exit 1
           fi

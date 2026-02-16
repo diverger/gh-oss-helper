@@ -72,8 +72,8 @@ else
 fi
 
 # Verify build output
-if [ ! -f "dist/index.js" ]; then
-    print_error "Build failed: dist/index.js not found"
+if [ ! -f "dist/index.mjs" ]; then
+    print_error "Build failed: dist/index.mjs not found"
     exit 1
 fi
 

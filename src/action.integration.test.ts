@@ -57,13 +57,13 @@ vi.mock('@actions/github', () => ({
 
 // Mock OSS SDK to simulate successful uploads
 vi.mock('ali-oss', () => ({
-  default: vi.fn().mockImplementation(() => ({
-    put: vi.fn().mockResolvedValue({
+  default: class MockOSS {
+    put = vi.fn().mockResolvedValue({
       res: { headers: { etag: 'mock-etag' } },
       url: 'https://test-bucket.oss-cn-hangzhou.aliyuncs.com/test-file.txt'
-    }),
-    getBucketInfo: vi.fn().mockResolvedValue({ name: 'test-bucket' })
-  }))
+    });
+    getBucketInfo = vi.fn().mockResolvedValue({ name: 'test-bucket' });
+  }
 }));
 
 describe('GitHub Action Integration Tests', () => {

@@ -9,10 +9,10 @@ import { OSSConfig, RetryConfig } from './types';
 // Mock ali-oss
 vi.mock('ali-oss', () => {
   return {
-    default: vi.fn().mockImplementation(() => ({
-      put: vi.fn(),
-      getBucketInfo: vi.fn()
-    }))
+    default: class MockOSS {
+      put = vi.fn();
+      getBucketInfo = vi.fn();
+    }
   };
 });
 
