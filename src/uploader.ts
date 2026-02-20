@@ -135,7 +135,7 @@ export class OSSUploader {
 
     // Check if this is a specific file path that doesn't exist
     // (as opposed to a glob pattern that legitimately finds no files)
-    const isSpecificFile = !sourcePattern.includes('*') && !sourcePattern.includes('?') && !sourcePattern.includes('[');
+    const isSpecificFile = !globPattern.includes('*') && !globPattern.includes('?') && !globPattern.includes('[');
 
     if (files.length === 0) {
       if (isSpecificFile) {
