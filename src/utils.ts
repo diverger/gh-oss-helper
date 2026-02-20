@@ -196,7 +196,8 @@ export function extractRelativePath(filePath: string, basePath: string): string 
 
   if (base) {
     const absBase = resolve(base).replace(/\\/g, '/');
-    const rel = relative(absBase, filePath).replace(/\\/g, '/');
+    const absFilePath = resolve(normalizedFilePath).replace(/\\/g, '/');
+    const rel = relative(absBase, absFilePath).replace(/\\/g, '/');
     if (!rel.startsWith('..') && !isAbsolute(rel)) {
       return rel || (normalizedFilePath.split('/').pop() ?? normalizedFilePath);
     }
@@ -250,7 +251,6 @@ export function logError(message: string): void {
 export function logDebug(message: string, details?: unknown): void {
   if (!isDebugEnabled()) {
     return;
-
   }
 
   if (details && typeof details === 'object') {
