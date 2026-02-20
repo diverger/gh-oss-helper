@@ -1,69 +1,69 @@
-﻿{
-    "name":  "gh-oss-helper",
-    "version":  "2.0.0",
-    "description":  "A modern TypeScript GitHub Action for uploading assets to Alibaba Cloud OSS with advanced retry logic and comprehensive error handling",
-    "type":  "module",
-    "main":  "dist/index.mjs",
-    "scripts":  {
-                    "build":  "tsup",
-                    "build:tsc":  "tsc",
-                    "build:watch":  "tsc -w",
-                    "dev":  "npm run build:watch",
-                    "lint":  "eslint src/**/*.ts",
-                    "lint:fix":  "eslint src/**/*.ts --fix",
-                    "test":  "vitest run",
-                    "test:unit":  "vitest run --exclude \u0027**/integration.test.ts\u0027 --exclude \u0027**/uploader.integration.test.ts\u0027 --exclude \u0027**/action.integration.test.ts\u0027",
-                    "test:integration":  "vitest run src/uploader.integration.test.ts",
-                    "test:action":  "vitest run src/action.integration.test.ts",
-                    "test:watch":  "vitest",
-                    "test:coverage":  "vitest run --coverage",
-                    "test:coverage:unit":  "vitest run --coverage --exclude \u0027**/integration.test.ts\u0027 --exclude \u0027**/uploader.integration.test.ts\u0027 --exclude \u0027**/action.integration.test.ts\u0027",
-                    "clean":  "rm -rf lib dist",
-                    "package":  "npm run clean \u0026\u0026 npm run build \u0026\u0026 npm run test:unit",
-                    "prepare":  "npm run build",
-                    "check":  "tsc --noEmit"
-                },
-    "keywords":  [
-                     "github-actions",
-                     "oss",
-                     "alibaba-cloud",
-                     "aliyun",
-                     "upload",
-                     "typescript",
-                     "file-upload",
-                     "object-storage",
-                     "ci-cd",
-                     "deployment"
-                 ],
-    "author":  "diverger \u003cdivergerl@live.cn\u003e",
-    "license":  "MIT",
-    "repository":  {
-                       "type":  "git",
-                       "url":  "git+https://github.com/diverger/gh-oss-helper.git"
-                   },
-    "bugs":  {
-                 "url":  "https://github.com/diverger/gh-oss-helper/issues"
-             },
-    "homepage":  "https://github.com/diverger/gh-oss-helper#readme",
-    "dependencies":  {
-                         "@actions/core":  "^3.0.0",
-                         "@actions/github":  "^9.0.0",
-                         "ali-oss":  "^6.23.0",
-                         "fast-glob":  "^3.3.2"
-                     },
-    "devDependencies":  {
-                            "@eslint/js":  "^9.39.2",
-                            "@types/ali-oss":  "^6.23.3",
-                            "@types/node":  "^25.2.3",
-                            "@typescript-eslint/eslint-plugin":  "^8.55.0",
-                            "@typescript-eslint/parser":  "^8.55.0",
-                            "@vitest/coverage-v8":  "^4.0.18",
-                            "eslint":  "^9.39.2",
-                            "eslint-formatter-unix":  "^9.0.1",
-                            "proxy-agent":  "^5.0.0",
-                            "tsup":  "^8.5.1",
-                            "tsx":  "^4.21.0",
-                            "typescript":  "^5.9.3",
-                            "vitest":  "^4.0.18"
-                        }
+{
+  "name": "gh-oss-helper",
+  "version": "2.0.0",
+  "description": "A modern TypeScript GitHub Action for uploading assets to Alibaba Cloud OSS with advanced retry logic and comprehensive error handling",
+  "type": "module",
+  "main": "dist/index.mjs",
+  "scripts": {
+    "build": "tsup",
+    "build:tsc": "tsc",
+    "build:watch": "tsc -w",
+    "dev": "npm run build:watch",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "test": "vitest run",
+    "test:unit": "vitest run --exclude '**/integration.test.ts' --exclude '**/uploader.integration.test.ts' --exclude '**/action.integration.test.ts'",
+    "test:integration": "vitest run src/uploader.integration.test.ts",
+    "test:action": "vitest run src/action.integration.test.ts",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:coverage:unit": "vitest run --coverage --exclude '**/integration.test.ts' --exclude '**/uploader.integration.test.ts' --exclude '**/action.integration.test.ts'",
+    "clean": "rm -rf lib dist",
+    "package": "npm run clean && npm run build && npm run test:unit",
+    "prepare": "npm run build",
+    "check": "tsc --noEmit"
+  },
+  "keywords": [
+    "github-actions",
+    "oss",
+    "alibaba-cloud",
+    "aliyun",
+    "upload",
+    "typescript",
+    "file-upload",
+    "object-storage",
+    "ci-cd",
+    "deployment"
+  ],
+  "author": "diverger <divergerl@live.cn>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/diverger/gh-oss-helper.git"
+  },
+  "bugs": {
+    "url": "https://github.com/diverger/gh-oss-helper/issues"
+  },
+  "homepage": "https://github.com/diverger/gh-oss-helper#readme",
+  "dependencies": {
+    "@actions/core": "^3.0.0",
+    "@actions/github": "^9.0.0",
+    "ali-oss": "^6.23.0",
+    "fast-glob": "^3.3.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/ali-oss": "^6.23.3",
+    "@types/node": "^25.3.0",
+    "@typescript-eslint/eslint-plugin": "^8.56.0",
+    "@typescript-eslint/parser": "^8.56.0",
+    "@vitest/coverage-v8": "^4.0.18",
+    "eslint": "^10.0.0",
+    "eslint-formatter-unix": "^9.0.1",
+    "proxy-agent": "~5.0.0",
+    "tsup": "^8.5.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
+  }
 }

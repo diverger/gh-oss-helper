@@ -3,7 +3,7 @@
  */
 
 import { promises as fs } from 'fs';
-import { basename } from 'path';
+import { basename, resolve, relative } from 'path';
 import * as core from '@actions/core';
 import { ValidationError, FileNotFoundError, UploadRule, ActionInputs } from './types';
 
@@ -46,16 +46,25 @@ export function parseUploadRules(assets: string): UploadRule[] {
     const trimmed = line.trim();
     if (!trimmed) continue;
 
-    const [source, destination] = trimmed.split(':');
+    const separatorIndex = trimmed.lastIndexOf(':');
+    if (separatorIndex === -1) {
+      core.warning(`⚠️  Skipping invalid rule: ${trimmed}`);
+      continue;
+    }
+
+    // Split on the last colon: handles Windows drive letters (C:\path:dest/) correctly.
+    const source = trimmed.substring(0, separatorIndex).trim();
+    const destination = trimmed.substring(separatorIndex + 1).trim();
+
     if (!source || !destination) {
       core.warning(`⚠️  Skipping invalid rule: ${trimmed}`);
       continue;
     }
 
     rules.push({
-      source: source.trim(),
-      destination: destination.trim(),
-      isDirectory: destination.trim().endsWith('/')
+      source,
+      destination,
+      isDirectory: destination.endsWith('/')
     });
   }
 
@@ -173,18 +182,33 @@ export function delay(ms: number): Promise<void> {
  * Extracts relative path from a file path based on glob pattern
  */
 export function extractRelativePath(filePath: string, basePath: string): string {
-  // Remove glob patterns and normalize the base path
-  const base = basePath.replace(/\*+.*$/g, '').replace(/\/$/, '');
+  // Normalize paths to forward slashes for consistent comparison
+  const normalizedFilePath = filePath.replace(/\\/g, '/');
+  const normalizedBasePath = basePath.replace(/\\/g, '/');
 
-  // If the file path starts with the base, extract the relative part
-  if (filePath.startsWith(base)) {
-    const relativePath = filePath.substring(base.length);
-    // Remove leading slash if present
-    return relativePath.startsWith('/') ? relativePath.substring(1) : relativePath;
+  // Remove glob patterns and normalize the base path
+  // Also handle cases where glob pattern is not at the end of the path
+  const baseParts = normalizedBasePath.split(/[*?[]/);
+  let base = baseParts[0];
+
+  // Strip trailing slash; path.relative handles separator differences
+  base = base.replace(/\/$/, '');
+
+  if (base) {
+    const absBase = resolve(base).replace(/\\/g, '/');
+    const absFilePath = resolve(normalizedFilePath).replace(/\\/g, '/');
+    const rel = relative(absBase, absFilePath).replace(/\\/g, '/');
+    if (!rel.startsWith('..') && !isAbsolute(rel)) {
+      return rel || (normalizedFilePath.split('/').pop() ?? normalizedFilePath);
+    }
   }
 
   // Fallback: just return the filename
-  return filePath.split('/').pop() || filePath;
+  return normalizedFilePath.split('/').pop() ?? normalizedFilePath;
+}
+
+function isAbsolute(path: string): boolean {
+  return /^[a-zA-Z]:/.test(path) || path.startsWith('/');
 }
 
 /**
@@ -224,7 +248,7 @@ export function logError(message: string): void {
  * - Runner-level filtering and action context issues can suppress debug output
  * - Using core.info() with conditional checking provides better visibility and control
  */
-export function logDebug(message: string, details?: any): void {
+export function logDebug(message: string, details?: unknown): void {
   if (!isDebugEnabled()) {
     return;
   }
