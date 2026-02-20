@@ -123,13 +123,15 @@ export class OSSUploader {
       }
     }
 
-    logDebug('Searching for files with pattern', sourcePattern);
-    const files = fg.sync([sourcePattern], {
+    const globPattern = sourcePattern.replace(/\\/g, '/');
+
+    logDebug('Searching for files with pattern', globPattern);
+    const files = fg.sync([globPattern], {
       dot: false,
       onlyFiles: true,
       absolute: true
     });
-    logDebug('Found files', { pattern: sourcePattern, count: files.length, files });
+    logDebug('Found files', { pattern: globPattern, count: files.length, files });
 
     // Check if this is a specific file path that doesn't exist
     // (as opposed to a glob pattern that legitimately finds no files)

@@ -46,7 +46,25 @@ export function parseUploadRules(assets: string): UploadRule[] {
     const trimmed = line.trim();
     if (!trimmed) continue;
 
-    const [source, destination] = trimmed.split(':');
+    const separatorIndex = trimmed.lastIndexOf(':');
+    if (separatorIndex === -1) {
+      core.warning(`⚠️  Skipping invalid rule: ${trimmed}`);
+      continue;
+    }
+
+    // Windows absolute paths might contain ':' (e.g. C:\path), so we need to be careful.
+    // However, the rule format is source:destination.
+    // If we split by the last colon, we assume destination doesn't contain a colon.
+    // This is generally true for OSS keys.
+    // But what if source is C:\file and destination is omitted? The loop check handles empty destination.
+
+    // Check if the colon is part of a Windows drive letter (e.g. C:\...) and there is NO destination
+    // This heuristic checks if the colon is at index 1 and followed by \ or /
+    // But here we are looking for the separator between source and destination.
+
+    const source = trimmed.substring(0, separatorIndex).trim();
+    const destination = trimmed.substring(separatorIndex + 1).trim();
+
     if (!source || !destination) {
       core.warning(`⚠️  Skipping invalid rule: ${trimmed}`);
       continue;
@@ -173,18 +191,38 @@ export function delay(ms: number): Promise<void> {
  * Extracts relative path from a file path based on glob pattern
  */
 export function extractRelativePath(filePath: string, basePath: string): string {
+  // Normalize paths to forward slashes for consistent comparison
+  const normalizedFilePath = filePath.replace(/\\/g, '/');
+  const normalizedBasePath = basePath.replace(/\\/g, '/');
+
   // Remove glob patterns and normalize the base path
-  const base = basePath.replace(/\*+.*$/g, '').replace(/\/$/, '');
+  // Also handle cases where glob pattern is not at the end of the path
+  const baseParts = normalizedBasePath.split(/[\*\?\[]/);
+  let base = baseParts[0];
+
+  // Ensure base ends with a separator if it's a directory
+  if (base.length > 0 && !base.endsWith('/')) {
+    // If original base path had a separator before the glob, keep it, otherwise potentially misleading
+    // But safely removing trailing slash is safer for comparison
+    base = base.replace(/\/$/, '');
+  }
 
   // If the file path starts with the base, extract the relative part
-  if (filePath.startsWith(base)) {
-    const relativePath = filePath.substring(base.length);
+  if (normalizedFilePath.startsWith(base)) {
+    let relativePath = normalizedFilePath.substring(base.length);
     // Remove leading slash if present
-    return relativePath.startsWith('/') ? relativePath.substring(1) : relativePath;
+    relativePath = relativePath.startsWith('/') ? relativePath.substring(1) : relativePath;
+
+    // If the relative path became empty (e.g. file equals base), return just the filename
+    if (!relativePath) {
+      return normalizedFilePath.split('/').pop() || normalizedFilePath;
+    }
+
+    return relativePath;
   }
 
   // Fallback: just return the filename
-  return filePath.split('/').pop() || filePath;
+  return normalizedFilePath.split('/').pop() || normalizedFilePath;
 }
 
 /**
