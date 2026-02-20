@@ -3,7 +3,7 @@
  */
 
 import { promises as fs } from 'fs';
-import { basename } from 'path';
+import { basename, resolve, relative } from 'path';
 import * as core from '@actions/core';
 import { ValidationError, FileNotFoundError, UploadRule, ActionInputs } from './types';
 
@@ -52,16 +52,7 @@ export function parseUploadRules(assets: string): UploadRule[] {
       continue;
     }
 
-    // Windows absolute paths might contain ':' (e.g. C:\path), so we need to be careful.
-    // However, the rule format is source:destination.
-    // If we split by the last colon, we assume destination doesn't contain a colon.
-    // This is generally true for OSS keys.
-    // But what if source is C:\file and destination is omitted? The loop check handles empty destination.
-
-    // Check if the colon is part of a Windows drive letter (e.g. C:\...) and there is NO destination
-    // This heuristic checks if the colon is at index 1 and followed by \ or /
-    // But here we are looking for the separator between source and destination.
-
+    // Split on the last colon: handles Windows drive letters (C:\path:dest/) correctly.
     const source = trimmed.substring(0, separatorIndex).trim();
     const destination = trimmed.substring(separatorIndex + 1).trim();
 
@@ -71,9 +62,9 @@ export function parseUploadRules(assets: string): UploadRule[] {
     }
 
     rules.push({
-      source: source.trim(),
-      destination: destination.trim(),
-      isDirectory: destination.trim().endsWith('/')
+      source,
+      destination,
+      isDirectory: destination.endsWith('/')
     });
   }
 
@@ -200,29 +191,23 @@ export function extractRelativePath(filePath: string, basePath: string): string 
   const baseParts = normalizedBasePath.split(/[*?[]/);
   let base = baseParts[0];
 
-  // Ensure base ends with a separator if it's a directory
-  if (base.length > 0 && !base.endsWith('/')) {
-    // If original base path had a separator before the glob, keep it, otherwise potentially misleading
-    // But safely removing trailing slash is safer for comparison
-    base = base.replace(/\/$/, '');
-  }
+  // Strip trailing slash; path.relative handles separator differences
+  base = base.replace(/\/$/, '');
 
-  // If the file path starts with the base, extract the relative part
-  if (normalizedFilePath.startsWith(base)) {
-    let relativePath = normalizedFilePath.substring(base.length);
-    // Remove leading slash if present
-    relativePath = relativePath.startsWith('/') ? relativePath.substring(1) : relativePath;
-
-    // If the relative path became empty (e.g. file equals base), return just the filename
-    if (!relativePath) {
-      return normalizedFilePath.split('/').pop() || normalizedFilePath;
+  if (base) {
+    const absBase = resolve(base).replace(/\\/g, '/');
+    const rel = relative(absBase, filePath).replace(/\\/g, '/');
+    if (!rel.startsWith('..') && !isAbsolute(rel)) {
+      return rel || (normalizedFilePath.split('/').pop() ?? normalizedFilePath);
     }
-
-    return relativePath;
   }
 
   // Fallback: just return the filename
-  return normalizedFilePath.split('/').pop() || normalizedFilePath;
+  return normalizedFilePath.split('/').pop() ?? normalizedFilePath;
+}
+
+function isAbsolute(path: string): boolean {
+  return /^[a-zA-Z]:/.test(path) || path.startsWith('/');
 }
 
 /**
