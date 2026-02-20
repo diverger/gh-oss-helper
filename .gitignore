@@ -1,8 +1,11 @@
 node_modules/
 .DS_Store
 
-# Build outputs - we commit dist/ but not lib/
+# Build outputs - only commit the bundled entry point for GitHub Actions
 lib/
+dist/*
+!dist/index.mjs
+
 *.tsbuildinfo
 
 # Test coverage

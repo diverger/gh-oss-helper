@@ -197,7 +197,7 @@ export function extractRelativePath(filePath: string, basePath: string): string 
 
   // Remove glob patterns and normalize the base path
   // Also handle cases where glob pattern is not at the end of the path
-  const baseParts = normalizedBasePath.split(/[\*\?\[]/);
+  const baseParts = normalizedBasePath.split(/[*?[]/);
   let base = baseParts[0];
 
   // Ensure base ends with a separator if it's a directory
@@ -262,9 +262,10 @@ export function logError(message: string): void {
  * - Runner-level filtering and action context issues can suppress debug output
  * - Using core.info() with conditional checking provides better visibility and control
  */
-export function logDebug(message: string, details?: any): void {
+export function logDebug(message: string, details?: unknown): void {
   if (!isDebugEnabled()) {
     return;
+
   }
 
   if (details && typeof details === 'object') {
