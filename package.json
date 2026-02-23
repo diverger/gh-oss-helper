@@ -1,4 +1,4 @@
-﻿{
+{
     "name":  "gh-oss-helper",
     "version":  "2.0.0",
     "description":  "A modern TypeScript GitHub Action for uploading assets to Alibaba Cloud OSS with advanced retry logic and comprehensive error handling",
@@ -58,7 +58,7 @@
                             "@typescript-eslint/eslint-plugin":  "^8.55.0",
                             "@typescript-eslint/parser":  "^8.55.0",
                             "@vitest/coverage-v8":  "^4.0.18",
-                            "eslint":  "^9.39.2",
+                            "eslint":  "^10.0.1",
                             "eslint-formatter-unix":  "^9.0.1",
                             "proxy-agent":  "^5.0.0",
                             "tsup":  "^8.5.1",
