@@ -90,7 +90,7 @@ jobs:
     # For PRs, create build artifact for review
     - name: Upload build artifact (PR)
       if: github.event_name == 'pull_request'
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: built-action
         path: dist/
